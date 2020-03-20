@@ -29,8 +29,10 @@ using MonoDevelop.Core;
 using MonoDevelop.Components.AtkCocoaHelper;
 using Gtk;
 using System.Diagnostics;
+#if MAC
 using AppKit;
 using Foundation;
+#endif
 using MonoDevelop.Components;
 using Xwt.Drawing;
 

@@ -507,7 +507,7 @@ namespace MonoDevelop.Components.Commands
 				firstResponder != window.ContentView) {
 				firstResponder.FlagsChanged (currentEvent);
 			}
-#endif
+
 			bool complete;
 			// KeyboardShortcut[] accels = 
 			KeyBindingManager.AccelsFromKey (e.Event, out complete);
@@ -528,6 +528,7 @@ namespace MonoDevelop.Components.Commands
 			}
 
 			e.RetVal = retVal;
+#endif
 		}
 
 		internal bool ProcessKeyEvent (Gdk.EventKey ev)
@@ -2426,8 +2427,10 @@ namespace MonoDevelop.Components.Commands
 		Gtk.Widget GetFocusedChild (Control widget)
 		{
 			Gtk.Container container;
+#if MAC
 			if (widget?.nativeWidget is AppKit.NSWindow window)
 				widget = Mac.GtkMacInterop.GetGtkWindow (window)?.Child;
+#endif
 			do {
 				container = widget?.nativeWidget is Gtk.Container ? widget.GetNativeWidget<Gtk.Container> () : null;
 				if (container != null) {
@@ -2472,7 +2475,7 @@ namespace MonoDevelop.Components.Commands
 				return IsEmbeddedNSView (view.Superview);
 			return false;
 		}
-		#endif
+#endif
 
 		bool UpdateStatus ()
 		{

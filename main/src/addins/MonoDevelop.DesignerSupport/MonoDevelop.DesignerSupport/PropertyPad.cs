@@ -44,6 +44,7 @@ using Gtk;
 
 namespace MonoDevelop.DesignerSupport
 {
+#if MAC
 	class PropertyMacHostWidget : IPropertyGrid
 	{
 		public event EventHandler PropertyGridChanged;
@@ -124,7 +125,87 @@ namespace MonoDevelop.DesignerSupport
 			}
 		}
 	}
+#else
+	class PropertyHostWidget : IPropertyGrid
+	{
+		public event EventHandler PropertyGridChanged;
 
+
+		MonoDevelop.Components.PropertyGrid.PropertyGrid view;
+
+		public string Name { get; set; }
+		public bool ShowHelp { get; set; } //not implemented
+
+		public ShadowType ShadowType { get; set; } //not implemented
+		public Widget Widget => view;
+
+		public bool IsGridEditing => view.IsEditing;
+
+		public bool ShowToolbar {
+			get => view.ShowToolbar;
+			set => view.ShowToolbar = value;
+		}
+
+		public bool Sensitive {
+			get => view.Sensitive;
+			set => view.Sensitive = value;
+		}
+
+		public object CurrentObject {
+			get => view.CurrentObject;
+			set {
+				view.SetCurrentObject (value, new object[] { value });
+			}
+		}
+
+		public PropertyHostWidget ()
+		{
+			view = new MonoDevelop.Components.PropertyGrid.PropertyGrid ();
+			//host = new GtkNSViewHost (view);
+
+			view.Changed += View_PropertyGridChanged;
+		}
+
+		void View_PropertyGridChanged (object sender, EventArgs e)
+			=> PropertyGridChanged?.Invoke (this, e);
+
+		public void SetCurrentObject (object obj, object[] propertyProviders)
+			=> view.SetCurrentObject (obj, propertyProviders);
+
+		public void BlankPad () => view.BlankPad ();
+		public void Hide () => view.Visible = false;
+		public void Show () => view.Visible = true;
+
+		public void OnPadContentShown ()
+		{
+			//not implemented;
+		}
+
+		public void PopulateGrid (bool saveEditSession)
+		{
+			//view.SetCurrentObject (obj, propertyProviders);
+		}
+
+		public void SetToolbarProvider (object toolbarProvider)
+		{
+			//not implemented;
+		}
+
+		public void CommitPendingChanges ()
+		{
+			//not implemented;
+		}
+
+		public void Dispose ()
+		{
+			if (view != null) {
+				view.Changed -= View_PropertyGridChanged;
+				view.Dispose ();
+				view = null;
+			}
+		}
+	}
+#endif
 	public interface IPropertyGrid : IPropertyPad
 	{
 		bool ShowToolbar { get; set; }
@@ -142,6 +223,7 @@ namespace MonoDevelop.DesignerSupport
 		void SetToolbarProvider (object toolbarProvider);
 		void CommitPendingChanges ();
 	}
+
 
 	public class PropertyGridWrapper : IPropertyGrid
 	{
@@ -188,7 +270,8 @@ namespace MonoDevelop.DesignerSupport
 #if MAC
 			nativeWidget = new PropertyMacHostWidget ();
 #else
-			nativeWidget = new pg.PropertyGrid ();
+			nativeWidget = new PropertyGridWrapper ();
+			//nativeWidget = new pg.PropertyGrid ();
 #endif
 			nativeWidget.PropertyGridChanged += NativeWidget_PropertyGridChanged;
 		}

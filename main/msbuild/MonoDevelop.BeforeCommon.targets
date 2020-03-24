@@ -19,6 +19,10 @@
 		<DebugType>portable</DebugType>
 		<WarningLevel>4</WarningLevel>
 		<Deterministic>True</Deterministic>
+        <HaveXamarinMac Condition="'$(HaveXamarinMac)' == ''">false</HaveXamarinMac>
+        <IsGnome Condition="'$(IsGnome)' == ''">false</IsGnome>
+        <IsWinWpf Condition="'$(IsWinWpf)' == ''">false</IsWinWpf>
+        <WpfRefAssemblyPath>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory)))../../../../net-framework-48-ref-assemblies/0.0.0.1/</WpfRefAssemblyPath>
 	</PropertyGroup>
 
 	<!-- AddinBuildDir is shorthand for which subdir of build\Addins to build into -->
@@ -58,14 +62,17 @@
 
 	<PropertyGroup Condition="$(Configuration.Contains('Mac'))">
 		<DefineConstants>$(DefineConstants);MAC</DefineConstants>
+        <HaveXamarinMac>true</HaveXamarinMac>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Configuration.Contains('Win32'))">
 		<DefineConstants>$(DefineConstants);WIN32;WINDOWS</DefineConstants>
+        <IsWinWpf>true</IsWinWpf>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(Configuration.Contains('Gnome'))">
 		<DefineConstants>$(DefineConstants);GNOME;LINUX</DefineConstants>
+        <IsGnome>true</IsGnome>
 	</PropertyGroup>
 
 	<Target Name="RemoveNoisyAnalyzers" BeforeTargets="CoreCompile">

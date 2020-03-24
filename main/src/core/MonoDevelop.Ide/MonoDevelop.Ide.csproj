@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="..\..\..\MonoDevelop.props" />
   <Import Project="$(ReferencesGtk)" />
   <Import Project="$(ReferencesVSEditor)" />
@@ -21,7 +21,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugWin32|AnyCPU' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseWin32|AnyCPU' " />
   <ItemGroup>
-     <Reference Include="monodoc">
+    <Reference Include="monodoc">
       <HintPath>..\..\..\external\macdoc\lib\monodoc.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" Condition=" '$(Configuration)' == 'DebugWin32' Or '$(Configuration)' == 'ReleaseWin32' " />
@@ -66,6 +66,9 @@
     <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="$(NuGetVersionMicrosoftTemplateEngine)" PrivateAssets="runtime" />
     <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="$(NuGetVersionMicrosoftTemplateEngine)" PrivateAssets="runtime" />
     <PackageReference Include="Microsoft.VisualStudio.CodingConventions" Version="1.1.20180503.2" PrivateAssets="runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Composition">
+      <Version>15.8.112</Version>
+    </PackageReference>
     <PackageReference Include="YamlDotNet.Signed" Version="5.2.1" />
     <IncludeCopyLocal Include="ICSharpCode.NRefactory.Cecil.dll" />
     <IncludeCopyLocal Include="ICSharpCode.NRefactory.CSharp.dll" />
@@ -81,7 +84,7 @@
     <IncludeCopyLocal Include="Xamarin.Mac.dll" Condition=" '$(Configuration)' == 'DebugMac' Or '$(Configuration)' == 'ReleaseMac' " />
     <IncludeCopyLocal Include="Xwt.dll" />
     <IncludeCopyLocal Include="Xwt.Gtk.dll" />
-    <IncludeCopyLocal Include="Xwt.XamMac.dll" Condition=" '$(Configuration)' == 'DebugMac' Or '$(Configuration)' == 'ReleaseMac' "/>
+    <IncludeCopyLocal Include="Xwt.XamMac.dll" Condition=" '$(Configuration)' == 'DebugMac' Or '$(Configuration)' == 'ReleaseMac' " />
     <IncludeCopyLocal Include="YamlDotNet.dll" />
   </ItemGroup>
   <ItemGroup>

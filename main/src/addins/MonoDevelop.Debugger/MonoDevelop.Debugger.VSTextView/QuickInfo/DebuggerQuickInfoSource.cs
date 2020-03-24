@@ -20,6 +20,8 @@ namespace MonoDevelop.Debugger.VSTextView.QuickInfo
 		DocumentView lastDocumentView;
 #if MAC
 		MacDebuggerTooltipWindow window;
+#else
+		IDebuggerTooltipWindow window;
 #endif
 		ITextView lastView;
 

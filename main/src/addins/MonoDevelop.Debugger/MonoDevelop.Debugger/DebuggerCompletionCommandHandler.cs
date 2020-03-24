@@ -55,6 +55,7 @@ namespace MonoDevelop.Debugger
 
 		public bool ExecuteCommand (EscapeKeyCommandArgs args, CommandExecutionContext executionContext)
 		{
+#if MAC
 			var cocoaTextView = (ICocoaTextView) args.TextView;
 			var bgView = cocoaTextView.VisualElement.Superview; // the NSView that draws the background color
 			var superview = bgView?.Superview;
@@ -62,14 +63,17 @@ namespace MonoDevelop.Debugger
 			if (superview is MacDebuggerObjectNameView nameView)
 				nameView.CancelEdit ();
 			else
-				System.Console.WriteLine ("superview is {0}", superview.GetType ().FullName);
 
+				System.Console.WriteLine ("superview is {0}", superview.GetType ().FullName);
+#else
+			System.Console.WriteLine ("view is {0}", args.TextView?.GetType ()?.FullName ?? "null");
+#endif
 			return true;
 		}
 
-		#endregion // EscapeKey
+#endregion // EscapeKey
 
-		#region ReturnKey
+#region ReturnKey
 
 		public CommandState GetCommandState (ReturnKeyCommandArgs args)
 		{
@@ -78,16 +82,19 @@ namespace MonoDevelop.Debugger
 
 		public bool ExecuteCommand (ReturnKeyCommandArgs args, CommandExecutionContext executionContext)
 		{
+#if MAC
 			var cocoaTextView = (ICocoaTextView) args.TextView;
 
 			cocoaTextView.VisualElement.ResignFirstResponder ();
-
+#else
+			System.Console.WriteLine ("view is {0}", args.TextView?.GetType ()?.FullName ?? "null");
+#endif
 			return true;
 		}
 
-		#endregion // ReturnKey
+#endregion // ReturnKey
 
-		#region TabKey
+#region TabKey
 
 		public CommandState GetCommandState (TabKeyCommandArgs args)
 		{
@@ -96,13 +103,16 @@ namespace MonoDevelop.Debugger
 
 		public bool ExecuteCommand (TabKeyCommandArgs args, CommandExecutionContext executionContext)
 		{
+#if MAC
 			var cocoaTextView = (ICocoaTextView) args.TextView;
 
 			cocoaTextView.VisualElement.ResignFirstResponder ();
-
+#else
+			System.Console.WriteLine ("view is {0}", args.TextView?.GetType ()?.FullName ?? "null");
+#endif
 			return true;
 		}
 
-		#endregion // TabKey
+#endregion // TabKey
 	}
 }

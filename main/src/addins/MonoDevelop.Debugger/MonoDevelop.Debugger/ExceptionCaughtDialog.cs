@@ -30,7 +30,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
+#if MAC
 using Foundation;
+#endif
 using GLib;
 using Gtk;
 
@@ -59,7 +61,9 @@ namespace MonoDevelop.Debugger
 		VBox vboxAroundInnerExceptionMessage, rightVBox, container;
 		Button close, helpLinkButton, innerExceptionHelpLinkButton;
 		TreeView exceptionValueTreeView, stackTraceTreeView;
+#if MAC
 		MacObjectValueTreeView macExceptionValueTreeView;
+#endif
 		InnerExceptionsTree innerExceptionsTreeView;
 		ObjectValueTreeViewController controller;
 		CheckButton onlyShowMyCodeCheckbox;
@@ -193,7 +197,9 @@ widget ""*.exception_help_link_label"" style ""exception-help-link-label""
 				controller.AllowExpanding = true;
 
 				if (Platform.IsMac) {
+#if MAC
 					macExceptionValueTreeView = controller.GetMacControl (ObjectValueTreeViewFlags.ObjectValuePadFlags);
+#endif
 				} else {
 					exceptionValueTreeView = controller.GetGtkControl (ObjectValueTreeViewFlags.ExceptionCaughtFlags);
 				}
@@ -210,6 +216,7 @@ widget ""*.exception_help_link_label"" style ""exception-help-link-label""
 			}
 
 			if (useNewTreeView && Platform.IsMac) {
+#if MAC
 				var scrolled = new AppKit.NSScrollView {
 					DocumentView = macExceptionValueTreeView,
 					AutohidesScrollers = true,
@@ -234,6 +241,7 @@ widget ""*.exception_help_link_label"" style ""exception-help-link-label""
 				var host = new GtkNSViewHost (scrolled);
 				host.ShowAll ();
 				scrolledWidget = host;
+#endif
 			} else {
 				exceptionValueTreeView.ModifyBase (StateType.Normal, Styles.ExceptionCaughtDialog.ValueTreeBackgroundColor.ToGdkColor ());
 				exceptionValueTreeView.ModifyBase (StateType.Active, Styles.ObjectValueTreeActiveBackgroundColor.ToGdkColor ());
@@ -262,7 +270,9 @@ widget ""*.exception_help_link_label"" style ""exception-help-link-label""
 			if (exceptionValueTreeView != null) {
 				exceptionValueTreeView.SetCommonAccessibilityAttributes ("ExceptionCaughtDialog.ExceptionValueTreeView", label, null);
 			} else {
+#if MAC
 				macExceptionValueTreeView.AccessibilityTitle = new NSString (label.Text);
+#endif
 			}
 
 			var vbox = new VBox ();

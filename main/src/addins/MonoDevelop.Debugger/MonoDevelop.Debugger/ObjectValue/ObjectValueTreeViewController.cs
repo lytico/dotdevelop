@@ -206,7 +206,7 @@ namespace MonoDevelop.Debugger
 
 			return control;
 		}
-
+#if MAC
 		public MacObjectValueTreeView GetMacControl (ObjectValueTreeViewFlags flags)
 		{
 			if (view != null)
@@ -218,12 +218,13 @@ namespace MonoDevelop.Debugger
 
 			return control;
 		}
-
+#endif
 		public Control GetControl (ObjectValueTreeViewFlags flags)
 		{
+#if MAC
 			if (Platform.IsMac)
 				return GetMacControl (flags);
-
+#endif
 			return GetGtkControl (flags);
 		}
 
@@ -358,7 +359,7 @@ namespace MonoDevelop.Debugger
 			return result;
 		}
 
-		#region Checkpoints
+#region Checkpoints
 		public void ChangeCheckpoint ()
 		{
 			// clear old values,
@@ -400,9 +401,9 @@ namespace MonoDevelop.Debugger
 
 			return false;
 		}
-		#endregion
+#endregion
 
-		#region Expressions
+#region Expressions
 
 		public event EventHandler<ExpressionAddedEventArgs> ExpressionAdded;
 		public event EventHandler<ExpressionChangedEventArgs> ExpressionChanged;
@@ -480,7 +481,7 @@ namespace MonoDevelop.Debugger
 			foreach (var node in Root.Children)
 				node.Refresh ();
 		}
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Returns true if the node can be edited
@@ -605,7 +606,7 @@ namespace MonoDevelop.Debugger
 			}
 		}
 
-		#region View event handlers
+#region View event handlers
 		void OnViewNodeExpand (object sender, ObjectValueNodeEventArgs e)
 		{
 			ExpandNodeAsync (e.Node).Ignore ();
@@ -667,9 +668,9 @@ namespace MonoDevelop.Debugger
 			RemovePinnedWatch ();
 		}
 
-		#endregion
+#endregion
 
-		#region Fetching and loading children
+#region Fetching and loading children
 		/// <summary>
 		/// Marks a node as expanded and fetches children for the node if they have not been already fetched
 		/// </summary>
@@ -785,9 +786,9 @@ namespace MonoDevelop.Debugger
 
 			return 0;
 		}
-		#endregion
+#endregion
 
-		#region Evaluation watches
+#region Evaluation watches
 		/// <summary>
 		/// Registers the ValueChanged event for a node where IsEvaluating is true. If the node is not evaluating, and
 		/// sendImmediatelyIfNotEvaluating is true, then fire OnEvaluatingNodeValueChanged immediately 
@@ -825,7 +826,7 @@ namespace MonoDevelop.Debugger
 			evaluationWatches.Clear ();
 		}
 
-		#endregion
+#endregion
 
 		protected virtual IDebuggerService OnGetDebuggerService ()
 		{
@@ -863,7 +864,7 @@ namespace MonoDevelop.Debugger
 			}
 		}
 
-		#region Event triggers
+#region Event triggers
 		void OnChildrenLoaded (ObjectValueNode node, int index, int count)
 		{
 			Runtime.RunInMainThread (() => {
@@ -917,7 +918,7 @@ namespace MonoDevelop.Debugger
 				view.LoadEvaluatedNode (node, replacementNodes);
 			}).Ignore ();
 		}
-		#endregion
+#endregion
 
 		class CheckpointState
 		{
@@ -1073,7 +1074,7 @@ namespace MonoDevelop.Debugger
 		}
 	}
 
-	#region Extension methods and helpers
+#region Extension methods and helpers
 	/// <summary>
 	/// Helper class to mimic existing API
 	/// </summary>
@@ -1157,5 +1158,5 @@ namespace MonoDevelop.Debugger
 			return node.GetDisplayValue ();
 		}
 	}
-	#endregion
+#endregion
 }

@@ -89,7 +89,9 @@ namespace MonoDevelop.Debugger
 			controller.ExpressionAdded -= OnExpressionAdded;
 
 			try {
+#if MAC
 				_treeview.BeginUpdates ();
+#endif
 				try {
 					// remove the expressions because we're going to rebuild them
 					controller.ClearAll ();
@@ -97,7 +99,9 @@ namespace MonoDevelop.Debugger
 					// re-add the expressions which will reevaluate the expressions and repopulate the treeview
 					controller.AddExpressions (expressions);
 				} finally {
+#if MAC
 					_treeview.EndUpdates ();
+#endif
 				}
 			} finally {
 				controller.ExpressionAdded += OnExpressionAdded;
@@ -164,7 +168,7 @@ namespace MonoDevelop.Debugger
 			base.Dispose ();
 		}
 
-		#region IMementoCapable implementation 
+#region IMementoCapable implementation 
 
 		public ICustomXmlSerializer Memento {
 			get {
@@ -224,6 +228,6 @@ namespace MonoDevelop.Debugger
 			return null;
 		}
 		
-		#endregion 
+#endregion
 	}
 }

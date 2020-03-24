@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.Text;
 
 namespace MonoDevelop.Debugger.VSTextView.QuickInfo
 {
+
 	public interface IDebugInfoProvider
 	{
 		Task<DataTipInfo> GetDebugInfoAsync (SnapshotPoint snapshotPoint, CancellationToken cancellationToken);

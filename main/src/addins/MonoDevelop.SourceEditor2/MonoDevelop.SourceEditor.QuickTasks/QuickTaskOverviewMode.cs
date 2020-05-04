@@ -112,6 +112,7 @@ namespace MonoDevelop.SourceEditor.QuickTasks
 		readonly QuickTaskStrip parentStrip;
 		protected readonly Adjustment vadjustment;
 		TextViewMargin textViewMargin;
+		int caretLine = -1;
 
 		public Mono.TextEditor.MonoTextEditor TextEditor {
 			get;
@@ -173,7 +174,7 @@ namespace MonoDevelop.SourceEditor.QuickTasks
 
 		void BreakpointsChanged (object sender, Mono.Debugging.Client.BreakEventArgs e)
 		{
-			DrawIndicatorSurface (forceUpdate: true);
+			DrawIndicatorSurface (0, true);
 		}
 
 		void HandleHighlightSearchPatternChanged (object sender, EventArgs e)
@@ -723,19 +724,15 @@ namespace MonoDevelop.SourceEditor.QuickTasks
 
 		void DrawBreakpoints (Cairo.Context cr)
 		{
-			var breakpointStore = parentStrip.SourceEditorView.Breakpoints;
-
-			var breakPoints = breakpointStore.GetBreakpointsAtFile (TextEditor.FileName);
-
+			var breakPoints = parentStrip.SourceEditorView.Breakpoints.GetBreakpointsAtFile (TextEditor.FileName);
 			if (breakPoints == null)
 				return;
-
 			foreach (var point in breakPoints) {
 				int y = (int)GetYPosition (point.Line);
 
 				cr.SetSourceColor (SyntaxHighlightingService.GetColor (TextEditor.EditorTheme, EditorThemeColors.BreakpointMarker));
 				int r = 4;
-				cr.Rectangle (0, y - r / 2, r, r);
+				cr.Rectangle (0, y  - r / 2, r, r);
 				cr.Fill ();
 			}
 		}
@@ -995,10 +992,14 @@ namespace MonoDevelop.SourceEditor.QuickTasks
 		void DrawIndicatorSurface (uint timeout = 250, bool forceUpdate = false)
 		{
 			RemoveIndicatorIdleHandler ();
-			indicatorIdleTimout = GLib.Timeout.Add (timeout, delegate {
+			if (timeout == 0) {
 				IndicatorSurfaceTimeoutHandler (forceUpdate);
-				return false;
-			});
+			} else {
+				indicatorIdleTimout = GLib.Timeout.Add (timeout, delegate {
+					IndicatorSurfaceTimeoutHandler (forceUpdate);
+					return false;
+				});
+			}
 		}
 
 		void IndicatorSurfaceTimeoutHandler (bool forceUpdate)
@@ -1014,8 +1015,8 @@ namespace MonoDevelop.SourceEditor.QuickTasks
 
 		void RemoveIndicatorIdleHandler ()
 		{
-			src?.Cancel ();
 			if (indicatorIdleTimout > 0) {
+				src?.Cancel ();
 				GLib.Source.Remove (indicatorIdleTimout);
 				indicatorIdleTimout = 0;
 			}

@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -8,10 +8,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows.Input;
 using Microsoft.VisualStudio.Text.Editor;
-using MonoDevelop.SourceEditor;
-
-// this conflicts with the new editor, but it's internal and will be removed
-#pragma warning disable CS0436 // Type conflicts with imported type
 
 namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
 {
@@ -55,10 +51,10 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
         private IMdTextView _textView;
         private StackList<IIntellisenseSession> _sessions = new StackList<IIntellisenseSession>();
         private ReadOnlyObservableCollection<IIntellisenseSession> _readOnlySessions;
-        private Dictionary<IIntellisenseSession, IMDSpaceReservationAgent> _reservationAgentIndex =
-            new Dictionary<IIntellisenseSession, IMDSpaceReservationAgent>();
-        private Dictionary<IMDSpaceReservationAgent, IMDSpaceReservationManager> _reservationManagerIndex =
-            new Dictionary<IMDSpaceReservationAgent, IMDSpaceReservationManager>();
+        private Dictionary<IIntellisenseSession, ISpaceReservationAgent> _reservationAgentIndex =
+            new Dictionary<IIntellisenseSession, ISpaceReservationAgent>();
+        private Dictionary<ISpaceReservationAgent, ISpaceReservationManager> _reservationManagerIndex =
+            new Dictionary<ISpaceReservationAgent, ISpaceReservationManager>();
         private IIntellisenseSession _keyboardSession;
         private IIntellisenseSession _sessionBeingRehosted;
 
@@ -106,7 +102,6 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
 
             session.Dismissed += this.OnSessionDismissed;
             session.PresenterChanged += this.OnSessionPresenterChanged;
-
             IPopupIntellisensePresenter popupPresenter = session.Presenter as IPopupIntellisensePresenter;
             if (popupPresenter != null)
             {
@@ -210,7 +205,7 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
             return false;
         }
 
-        private void OnSpaceReservationManager_AgentChanged(object sender, MDSpaceReservationAgentChangedEventArgs e)
+        private void OnSpaceReservationManager_AgentChanged(object sender, SpaceReservationAgentChangedEventArgs e)
         {
             if (e.NewAgent == null)
             {
@@ -417,7 +412,7 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
             if (popupPresenter.SurfaceElement == null)
             { return; }
 
-            IMDSpaceReservationManager manager = _textView.GetSpaceReservationManager(popupPresenter.SpaceReservationManagerName);
+            ISpaceReservationManager manager = _textView.GetSpaceReservationManager(popupPresenter.SpaceReservationManagerName);
             if (manager != null)
             {
                 // If this is the first time we've seen this manager, subscribe to its AgentChanged event.
@@ -427,7 +422,7 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
                     manager.AgentChanged += this.OnSpaceReservationManager_AgentChanged;
                 }
 
-                IMDSpaceReservationAgent agent = manager.CreatePopupAgent(popupPresenter.PresentationSpan,
+                ISpaceReservationAgent agent = manager.CreatePopupAgent(popupPresenter.PresentationSpan,
                     popupPresenter.PopupStyles,
                     popupPresenter.SurfaceElement);
 
@@ -468,10 +463,10 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
 
             try
             {
-                IMDSpaceReservationAgent oldAgent = null;
+                ISpaceReservationAgent oldAgent = null;
                 if ((_reservationAgentIndex.TryGetValue(session, out oldAgent)) && (oldAgent != null))
                 {
-                    IMDSpaceReservationManager manager = null;
+                    ISpaceReservationManager manager = null;
                     if ((_reservationManagerIndex.TryGetValue(oldAgent, out manager)) && (manager != null))
                     {
                         manager.UpdatePopupAgent(oldAgent, popupPresenter.PresentationSpan, popupPresenter.PopupStyles);
@@ -514,10 +509,10 @@ namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
                 // Now, see if we have a popup agent for this presenter.  If so, let's get rid of it.  This is what will "hide" the
                 // popup.
 
-                IMDSpaceReservationAgent agent;
+                ISpaceReservationAgent agent;
                 if ((_reservationAgentIndex.TryGetValue(session, out agent)) && (agent != null))
                 {
-                    IMDSpaceReservationManager manager;
+                    ISpaceReservationManager manager;
                     if ((_reservationManagerIndex.TryGetValue(agent, out manager)) && (manager != null))
                     {
                         manager.RemoveAgent(agent);

@@ -27,7 +27,7 @@ namespace MonoDevelop.SourceEditor.Braces
 		private IBraceCompletionAggregatorFactory _aggregatorFactory = null;
 
 		[Import]
-		private IGuardedOperations _guardedOperations = null;
+		private GuardedOperations _guardedOperations = null;
 
 		#endregion
 
@@ -35,10 +35,6 @@ namespace MonoDevelop.SourceEditor.Braces
 
 		public void TextViewCreated (ITextView textView)
 		{
-			if (!(textView is IMdTextView)) {
-				return;
-			}
-
 			textView.Properties.AddProperty ("BraceCompletionManagerMD",
 				new BraceCompletionManager (textView,
 					new BraceCompletionStack (textView, _adornmentServiceFactory, _guardedOperations), _aggregatorFactory, _guardedOperations));

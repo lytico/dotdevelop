@@ -21,6 +21,7 @@ namespace MonoDevelop.SourceEditor
 		public IDocumentLine Line => base.LineSegment;
 
 		public event EventHandler ShowPopup;
+		public event EventHandler CancelPopup;
 
 		public SmartTagSeverity SmartTagSeverity { get; set; }
 

@@ -9,19 +9,19 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
     using Microsoft.VisualStudio.Utilities;
 	using UIElement = Xwt.Widget;
 
-    //[Export(typeof(IViewElementFactory))]
+    [Export(typeof(IViewElementFactory))]
     [Name("default ClassifiedTextElement to UIElement")]
     [TypeConversion(from: typeof(ClassifiedTextElement), to: typeof(UIElement))]
     [Order]
     internal sealed class WpfClassifiedTextElementViewElementFactory : IViewElementFactory
     {
         private readonly IClassificationTypeRegistryService classificationTypeRegistryService;
-        private readonly ToolTipStyleFactory2 styleFactory;
+        private readonly ToolTipStyleFactory styleFactory;
 
         [ImportingConstructor]
         public WpfClassifiedTextElementViewElementFactory(
             IClassificationTypeRegistryService classificationTypeRegistryService,
-            ToolTipStyleFactory2 styleFactory)
+            ToolTipStyleFactory styleFactory)
         {
             this.classificationTypeRegistryService = classificationTypeRegistryService
                 ?? throw new ArgumentNullException(nameof(classificationTypeRegistryService));

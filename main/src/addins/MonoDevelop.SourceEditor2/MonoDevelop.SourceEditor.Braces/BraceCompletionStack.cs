@@ -11,7 +11,6 @@ namespace MonoDevelop.SourceEditor.Braces
 	using Microsoft.VisualStudio.Text.BraceCompletion;
 	using Microsoft.VisualStudio.Text.Editor;
 	using Microsoft.VisualStudio.Text.Utilities;
-	using Microsoft.VisualStudio.Utilities;
 	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
@@ -32,11 +31,11 @@ namespace MonoDevelop.SourceEditor.Braces
 
 		private IBraceCompletionAdornmentServiceFactory _adornmentServiceFactory;
 		private IBraceCompletionAdornmentService _adornmentService;
-		private IGuardedOperations _guardedOperations;
+		private GuardedOperations _guardedOperations;
 		#endregion
 
 		#region Constructors
-		public BraceCompletionStack (ITextView textView, IBraceCompletionAdornmentServiceFactory adornmentFactory, IGuardedOperations guardedOperations)
+		public BraceCompletionStack (ITextView textView, IBraceCompletionAdornmentServiceFactory adornmentFactory, GuardedOperations guardedOperations)
 		{
 			_adornmentServiceFactory = adornmentFactory;
 			_stack = new Stack<IBraceCompletionSession> ();

@@ -40,7 +40,6 @@ namespace Mono.TextEditor
 	partial class MdTextViewLineCollection : List<ITextViewLine>, ITextViewLineCollection
 	{
 		readonly MonoTextEditor textEditor;
-
 		readonly ITextSourceVersion version;
 		ITextSnapshot textSnapshot;
 
@@ -49,15 +48,6 @@ namespace Mono.TextEditor
 			this.textEditor = textEditor;
 			this.version = this.textEditor.Document.Version;
 			textEditor.TextViewModel.VisualBuffer.ChangedLowPriority += OnVisualBufferChanged;
-			textEditor.TextViewModel.VisualBuffer.ContentTypeChanged += OnVisualBufferContentTypeChanged;
-			textEditor.Closed += TextEditorClosed;
-		}
-
-		private void TextEditorClosed (object sender, EventArgs e)
-		{
-			var editor = (MonoTextEditor)sender;
-			editor.TextViewModel.VisualBuffer.ChangedLowPriority -= OnVisualBufferChanged;
-			editor.TextViewModel.VisualBuffer.ContentTypeChanged -= OnVisualBufferContentTypeChanged;
 		}
 
 		internal ITextViewLine Add (int logicalLineNumber, DocumentLine line, TextViewMargin.LayoutWrapper layoutWrapper)
@@ -130,24 +120,9 @@ namespace Mono.TextEditor
 		private readonly HashSet<int> modifiedLinesCache = new HashSet<int> ();
 		private readonly List<MdTextViewLine> reusedLinesCache = new List<MdTextViewLine> ();
 
-		private void OnVisualBufferContentTypeChanged (object sender, ContentTypeChangedEventArgs e)
+		internal void OnVisualBufferChanged (object sender, TextContentChangedEventArgs e)
 		{
-			// A content type change can (?) generate a new snapshot. In that case the change events are not
-			// raised, so the cache is not cleared and that causes an assertion since there is a new
-			// snapshot in the editor.
-			// This case is now detected and the new snapshot is taken.
-
-			OnVisualBufferChanged (null, e.After);
-		}
-
-		void OnVisualBufferChanged (object sender, TextContentChangedEventArgs e)
-		{
-			OnVisualBufferChanged (e, e.After);
-		}
-
-		void OnVisualBufferChanged (TextContentChangedEventArgs e, ITextSnapshot afterSnapshot)
-		{
-			if (textSnapshot != null && e != null) {
+			if (textSnapshot != null) {
 				foreach (ITextChange textChange in e.Changes) {
 					Span textChangeCurrentSpan;
 					if (e.Before == textSnapshot) {
@@ -182,7 +157,7 @@ namespace Mono.TextEditor
 
 			this.Clear ();
 
-			var newSnapshot = afterSnapshot;
+			var newSnapshot = e.After;
 			foreach(MdTextViewLine line in reusedLinesCache) {
 				var snapshotLine = textSnapshot.GetLineFromLineNumber (line.LineNumber - 1);
 				var lineStart = textSnapshot.CreateTrackingPoint (snapshotLine.Start, PointTrackingMode.Negative);

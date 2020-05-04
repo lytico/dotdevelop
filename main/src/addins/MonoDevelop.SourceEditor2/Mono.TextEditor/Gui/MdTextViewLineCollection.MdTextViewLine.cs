@@ -30,6 +30,7 @@ using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.Language.Intellisense.Implementation;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Formatting;
+using Microsoft.VisualStudio.Text.Implementation;
 using MonoDevelop.Core.Text;
 using System.Threading;
 using MonoDevelop.Ide;
@@ -42,14 +43,13 @@ namespace Mono.TextEditor
 		{
 			internal readonly DocumentLine line;
 			internal readonly TextViewMargin.LayoutWrapper layoutWrapper;
-			readonly MdTextViewLineCollection collection;
+			readonly MdTextViewLineCollection collection; 
 			MonoTextEditor textEditor;
 
 			/// <summary>
 			/// 1-based
 			/// </summary>
 			public int LineNumber { get; private set; }
-			public bool HasDrawn { get; set; }
 
 			public MdTextViewLine(MdTextViewLineCollection collection, MonoTextEditor textEditor, DocumentLine line, int lineNumber, TextViewMargin.LayoutWrapper layoutWrapper)
 			{
@@ -75,11 +75,11 @@ namespace Mono.TextEditor
 
 			public SnapshotSpan Extent => new SnapshotSpan (Snapshot, line.Offset, line.Length);
 
-			public IMappingSpan ExtentAsMappingSpan => textEditor.BufferGraph.CreateMappingSpan (Extent, SpanTrackingMode.EdgeInclusive);
+			public IMappingSpan ExtentAsMappingSpan => new MappingSpan (Extent, SpanTrackingMode.EdgeInclusive, null);
 
 			public SnapshotSpan ExtentIncludingLineBreak => new SnapshotSpan (Snapshot, line.Offset, line.LengthIncludingDelimiter);
 
-			public IMappingSpan ExtentIncludingLineBreakAsMappingSpan => textEditor.BufferGraph.CreateMappingSpan (ExtentIncludingLineBreak, SpanTrackingMode.EdgeInclusive);
+			public IMappingSpan ExtentIncludingLineBreakAsMappingSpan => new MappingSpan (ExtentIncludingLineBreak, SpanTrackingMode.EdgeInclusive, null);
 
 			public SnapshotPoint Start => new SnapshotPoint (Snapshot, line.Offset);
 
@@ -191,7 +191,7 @@ namespace Mono.TextEditor
 
 			public TextBounds GetExtendedCharacterBounds(VirtualSnapshotPoint bufferPosition)
 			{
-				// if the point is in virtual space, then it can't be next to any space negotiating adornments,
+				// if the point is in virtual space, then it can't be next to any space negotiating adornments, 
 				// so just return its character bounds. If the point is not in virtual space, then use the regular
 				// GetExtendedCharacterBounds method for a non-virtual SnapshotPoint
 				if (bufferPosition.IsInVirtualSpace)
@@ -258,37 +258,6 @@ namespace Mono.TextEditor
 			{
 				return new Span (line.Offset, line.LengthIncludingDelimiter).IntersectsWith (bufferSpan);
 			}
-
-			public void SetChange (TextViewLineChange change)
-			{
-				throw new NotImplementedException ();
-			}
-
-			public void SetTop (double top)
-			{
-				throw new NotImplementedException ();
-			}
-
-			public void SetDeltaY (double deltaY)
-			{
-				throw new NotImplementedException ();
-			}
-
-			public void SetSnapshot (ITextSnapshot visualSnapshot, ITextSnapshot editSnapshot)
-			{
-				throw new NotImplementedException ();
-			}
-
-			public void SetLineTransform (LineTransform transform)
-			{
-				throw new NotImplementedException ();
-			}
-
-			public void Dispose ()
-			{
-
-			}
-
 		}
 	}
 }

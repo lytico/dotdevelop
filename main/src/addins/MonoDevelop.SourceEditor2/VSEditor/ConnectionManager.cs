@@ -15,7 +15,6 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
     using Microsoft.VisualStudio.Utilities;
     using Microsoft.VisualStudio.Text.Projection;
     using Microsoft.VisualStudio.Text.Utilities;
-    using System.Linq;
 
     internal class ConnectionManager
     {
@@ -23,9 +22,9 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
         {
             private readonly Lazy<ITextViewConnectionListener, IContentTypeAndTextViewRoleMetadata> importInfo;
             private ITextViewConnectionListener listener;
-            private readonly IGuardedOperations guardedOperations;
+            private readonly GuardedOperations guardedOperations;
 
-            public Listener(Lazy<ITextViewConnectionListener, IContentTypeAndTextViewRoleMetadata> importInfo, IGuardedOperations guardedOperations)
+            public Listener(Lazy<ITextViewConnectionListener, IContentTypeAndTextViewRoleMetadata> importInfo, GuardedOperations guardedOperations)
             {
                 this.importInfo = importInfo;
                 this.guardedOperations = guardedOperations;
@@ -51,23 +50,11 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
 
         ITextView _textView;
         List<Listener> listeners = new List<Listener>();
-        IGuardedOperations _guardedOperations;
-
-        static readonly string[] allowedTextViewConnectionListeners = {
-            "Microsoft.CodeAnalysis.Editor.TextBufferAssociatedViewService",
-            "Microsoft.CodeAnalysis.Editor.TypeScript.ScriptContexts.ScriptBlockConnectionListener",
-            "Microsoft.VisualStudio.JSON.Package.Commands.VsJSONTextViewConnectionListener",
-            "Microsoft.CodeAnalysis.Editor.TextBufferAssociatedViewService",
-            "Microsoft.VisualStudio.Editor.Razor.RazorTextViewConnectionListener",
-            "Microsoft.VisualStudio.Html.Package.Commands.Html.VsHtmlTextViewConnectionListener",
-            "Microsoft.VisualStudio.Html.Package.Commands.CSS.VsCssTextViewConnectionListener",
-            "WebToolingAddin.IntellisenseManagerConnectionListener"
-            //"Microsoft.VisualStudio.Language.Intellisense.Implementation.IntellisenseManagerConnectionListener"
-        };
+        GuardedOperations _guardedOperations;
 
         public ConnectionManager(ITextView textView, 
                                  ICollection<Lazy<ITextViewConnectionListener, IContentTypeAndTextViewRoleMetadata>> textViewConnectionListeners,
-                                 IGuardedOperations guardedOperations)
+                                 GuardedOperations guardedOperations)
         {
             if (textView == null)
             {
@@ -92,11 +79,6 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             {
                 foreach (var listenerExport in filteredListeners)
                 {
-                    if (!allowedTextViewConnectionListeners.Contains(listenerExport.Value.ToString()))
-                    {
-                        continue;
-                    }
-
                     Listener listener = new Listener(listenerExport, guardedOperations);
                     this.listeners.Add(listener);
 
@@ -113,12 +95,8 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                         }
                     }
                 }
-
-                if (listeners.Count > 0)
-                {
-                    textView.BufferGraph.GraphBuffersChanged += OnGraphBuffersChanged;
-                    textView.BufferGraph.GraphBufferContentTypeChanged += OnGraphBufferContentTypeChanged;
-                }
+                textView.BufferGraph.GraphBuffersChanged += OnGraphBuffersChanged;
+                textView.BufferGraph.GraphBufferContentTypeChanged += OnGraphBufferContentTypeChanged;
             }
         }
 

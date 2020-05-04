@@ -522,27 +522,18 @@ namespace Mono.TextEditor
 					preeditOffset = Caret.Offset;
 					preeditLine = Caret.Line;
 				}
-				if (UpdatePreeditLineHeight ()) {
+				if (UpdatePreeditLineHeight ())
 					QueueDraw ();
-				} else {
-					this.textViewMargin.ForceInvalidateLine (preeditLine);
-					this.textEditorData.Document.CommitLineUpdate (preeditLine);
-				}
 			} else {
+				preeditOffset = -1;
 				preeditString = null;
 				preeditAttrs = null;
 				preeditCursorCharIndex = 0;
-				if (preeditOffset < 0) {
-					return;
-				}
-				preeditOffset = -1;
-				if (UpdatePreeditLineHeight ()) {
+				if (UpdatePreeditLineHeight ())
 					QueueDraw ();
-				} else {
-					this.textViewMargin.ForceInvalidateLine (preeditLine);
-					this.textEditorData.Document.CommitLineUpdate (preeditLine);
-				}
 			}
+			this.textViewMargin.ForceInvalidateLine (preeditLine);
+			this.textEditorData.Document.CommitLineUpdate (preeditLine);
 		}
 
 		internal bool UpdatePreeditLineHeight ()
@@ -864,7 +855,7 @@ namespace Mono.TextEditor
 			if (currentFocus == FocusMargin.TextView) {
 				imContextNeedsReset = true;
 				mouseButtonPressed = 0;
-				imContext?.FocusOut ();
+				imContext.FocusOut ();
 
 				if (tipWindow != null && currentTooltipProvider != null) {
 					if (!currentTooltipProvider.IsInteractive (textEditorData.Parent, tipWindow))
@@ -885,11 +876,8 @@ namespace Mono.TextEditor
 		protected override bool OnFocusOutEvent (EventFocus evnt)
 		{
 			var result = base.OnFocusOutEvent (evnt);
-			try {
-				FocusOut ();
-			} catch (Exception e) {
-				LoggingService.LogInternalError ("TextArea error while focus out event.", e);
-			}
+
+			FocusOut ();
 
 			return result;
 		}
@@ -1128,6 +1116,8 @@ namespace Mono.TextEditor
 		{
 			if (isDisposed || logicalLine > LineCount || logicalLine < DocumentLocation.MinLine)
 				return;
+
+			textViewMargin.RemoveCachedLine(logicalLine);
 
 			double y = LineToY (logicalLine) - this.textEditorData.VAdjustment.Value;
 			double h = GetLineHeight (logicalLine);
@@ -1424,13 +1414,8 @@ namespace Mono.TextEditor
 						return true;
 					}
 				}
-				if (margin != null) {
-					try {
-						margin.MousePressed (new MarginMouseEventArgs (textEditorData.Parent, e, e.Button, e.X - startPos, e.Y, e.State));
- 					} catch (Exception ex) {
-						LoggingService.LogInternalError ("Exception while margin mouse press.", ex);
-					}
-				}
+				if (margin != null) 
+					margin.MousePressed (new MarginMouseEventArgs (textEditorData.Parent, e, e.Button, e.X - startPos, e.Y, e.State));
 			}
 			return result;
 		}

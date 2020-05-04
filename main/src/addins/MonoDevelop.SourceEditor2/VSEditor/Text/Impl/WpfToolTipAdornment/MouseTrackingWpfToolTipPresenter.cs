@@ -8,9 +8,8 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Formatting;
 	using Xwt;
-    using Rect = Xwt.Rectangle;
-    using Point = Xwt.Point;
-    using System.Windows.Input;
+	using Rect = Xwt.Rectangle;
+	using System.Windows.Input;
 	using MonoDevelop.Components;
 
 	internal sealed class MouseTrackingWpfToolTipPresenter : BaseWpfToolTipPresenter
@@ -25,7 +24,7 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
             IObscuringTipManager obscuringTipManager,
             ITextView textView,
             ToolTipParameters parameters,
-            ToolTipPresenterStyle2 presenterStyle)
+            ToolTipPresenterStyle presenterStyle)
             : base(viewElementFactoryService, obscuringTipManager, textView, parameters, presenterStyle)
         {
         }
@@ -160,8 +159,7 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
             //}
             //else
             //{
-            view.VisualElement.GetPointer(out var x, out var y);
-            mousePoint = new Point(x, y);
+                mousePoint = Mouse.GetPosition(view.VisualElement);
             //}
 
             mousePoint.X += view.ViewportLeft;

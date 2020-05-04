@@ -9,7 +9,6 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
-using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
 using Microsoft.VisualStudio.Text.Utilities;
@@ -18,9 +17,9 @@ using MonoDevelop.Components;
 using Rect = Xwt.Rectangle;
 using Point = Xwt.Point;
 
-namespace MonoDevelop.SourceEditor
+namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
 {
-    internal class CurrentLineSpaceReservationAgent : IMDSpaceReservationAgent
+    internal class CurrentLineSpaceReservationAgent : ISpaceReservationAgent
     {
         internal const string CurrentLineSRManagerName = "currentline";
 
@@ -38,11 +37,6 @@ namespace MonoDevelop.SourceEditor
 
             public void TextViewCreated(ITextView textView)
             {
-                if (!(textView is IMdTextView))
-                {
-                    return;
-                }
-
                 var sessionStack = this.IntellisenseSessionStackMapService.GetStackForTextView(textView);
                 if (sessionStack != null)
                 {
@@ -128,7 +122,7 @@ namespace MonoDevelop.SourceEditor
             }
         }
 
-        private void OnSRManager_AgentChanged(object sender, MDSpaceReservationAgentChangedEventArgs e)
+        private void OnSRManager_AgentChanged(object sender, SpaceReservationAgentChangedEventArgs e)
         {
             if (_isAttached && (e.OldAgent == this))
             {
@@ -194,7 +188,7 @@ namespace MonoDevelop.SourceEditor
                 {
                     var topLeft = ((IMdTextView)_textView).VisualElement.GetScreenCoordinates
                         (new Gdk.Point((int)_textView.ViewportLeft, (int)(caretLine.TextTop - _textView.ViewportTop)));
-                    var screenRect = new System.Windows.Rect
+                    Rect screenRect = new Rect
                         (topLeft.X,
                          topLeft.Y,
                          _textView.ViewportWidth,
@@ -209,8 +203,8 @@ namespace MonoDevelop.SourceEditor
             }
         }
 
-        private IMDSpaceReservationManager _currentLineSRManager;
-        private IMDSpaceReservationManager CurrentLineSRManager
+        private ISpaceReservationManager _currentLineSRManager;
+        private ISpaceReservationManager CurrentLineSRManager
         {
             get
             {

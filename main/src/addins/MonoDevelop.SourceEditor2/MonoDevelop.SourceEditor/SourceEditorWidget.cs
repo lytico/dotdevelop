@@ -726,7 +726,7 @@ namespace MonoDevelop.SourceEditor
 				b2.Image = new ImageView (Gtk.Stock.Cancel, IconSize.Button);
 				b2.Clicked += delegate {
 					RemoveMessageBar ();
-					view.DocumentController.ShowNotification = false;
+					view.WorkbenchWindow.ShowNotification = false;
 				};
 				messageBar.ActionArea.Add (b2);
 
@@ -747,7 +747,7 @@ namespace MonoDevelop.SourceEditor
 				}
 			}
 			
-			view.DocumentController.HasUnsavedChanges = true;
+			view.IsDirty = true;
 			view.WarnOverwrite = true;
 			vbox.PackStart (messageBar, false, false, CHILD_PADDING);
 			vbox.ReorderChild (messageBar, 0);
@@ -755,7 +755,7 @@ namespace MonoDevelop.SourceEditor
 
 			messageBar.QueueDraw ();
 			
-			view.DocumentController.ShowNotification = true;
+			view.WorkbenchWindow.ShowNotification = true;
 		}
 		
 		#region Eol marker check
@@ -930,14 +930,14 @@ namespace MonoDevelop.SourceEditor
 
 			image.Clicked += delegate {
 				UseIncorrectMarkers = true;
-				view.DocumentController.ShowNotification = false;
+				view.WorkbenchWindow.ShowNotification = false;
 				RemoveMessageBar ();
 			};
 			okButton.Clicked += async delegate {
 				switch (combo.Active) {
 				case 0:
 					ConvertLineEndings ();
-					view.DocumentController.ShowNotification = false;
+					view.WorkbenchWindow.ShowNotification = false;
 					await view.Save (fileName, view.SourceEncoding);
 					break;
 				case 1:
@@ -945,7 +945,7 @@ namespace MonoDevelop.SourceEditor
 					break;
 				case 2:
 					UseIncorrectMarkers = true;
-					view.DocumentController.ShowNotification = false;
+					view.WorkbenchWindow.ShowNotification = false;
 					break;
 				case 3:
 					FileRegistry.IgnoreLineEndingsInAllFiles ();
@@ -974,7 +974,7 @@ namespace MonoDevelop.SourceEditor
 						AutoSave.RemoveAutoSaveFile (fileName);
 						TextEditor.GrabFocus ();
 						view.Load (fileName);
-						view.DocumentController.Document.DocumentContext.ReparseDocument ();
+						view.WorkbenchWindow.Document.ReparseDocument ();
 					} catch (Exception ex) {
 						LoggingService.LogError ("Could not remove the autosave file.", ex);
 					} finally {
@@ -991,8 +991,8 @@ namespace MonoDevelop.SourceEditor
 						TextEditor.GrabFocus ();
 						view.Load (fileName);
 						view.ReplaceContent (fileName, content.Text, view.SourceEncoding);
-						view.DocumentController.Document.DocumentContext.ReparseDocument ();
-						view.DocumentController.HasUnsavedChanges = true;
+						view.WorkbenchWindow.Document.ReparseDocument ();
+						view.IsDirty = true;
 					} catch (Exception ex) {
 						LoggingService.LogError ("Could not remove the autosave file.", ex);
 					} finally {
@@ -1003,7 +1003,7 @@ namespace MonoDevelop.SourceEditor
 				messageBar.ActionArea.Add (b2);
 			}
 			
-			view.DocumentController.HasUnsavedChanges = true;
+			view.IsDirty = true;
 			view.WarnOverwrite = true;
 			vbox.PackStart (messageBar, false, false, CHILD_PADDING);
 			vbox.ReorderChild (messageBar, 0);
@@ -1011,7 +1011,7 @@ namespace MonoDevelop.SourceEditor
 
 			messageBar.QueueDraw ();
 			
-//			view.DocumentController.ShowNotification = true;
+//			view.WorkbenchWindow.ShowNotification = true;
 		}
 		
 		
@@ -1040,7 +1040,7 @@ namespace MonoDevelop.SourceEditor
 				view.StoreSettings ();
 				reloadSettings = true;
 				await view.Load (view.ContentName, view.SourceEncoding, true);
-				view.DocumentController.ShowNotification = false;
+				view.WorkbenchWindow.ShowNotification = false;
 			} catch (Exception ex) {
 				MessageService.ShowError ("Could not reload the file.", ex);
 			} finally {
@@ -1322,16 +1322,16 @@ namespace MonoDevelop.SourceEditor
 		{
 			MonoDevelop.Ide.Editor.DocumentRegion region;
 			var res = TextEditor.GetLanguageItem (TextEditor.Caret.Offset, out region);
-			string url = IdeServices.HelpService.GetMonoDocHelpUrl (res);
+			string url = HelpService.GetMonoDocHelpUrl (res);
 			if (url != null)
-				IdeServices.HelpOperations.ShowHelp (url);
+				IdeApp.HelpOperations.ShowHelp (url);
 		}
 		
 		internal void MonodocResolverUpdate (CommandInfo cinfo)
 		{
 			MonoDevelop.Ide.Editor.DocumentRegion region;
 			var res = TextEditor.GetLanguageItem (TextEditor.Caret.Offset, out region);
-			if (IdeServices.HelpService.GetMonoDocHelpUrl (res) == null)
+			if (HelpService.GetMonoDocHelpUrl (res) == null)
 				cinfo.Bypass = true;
 		}
 		

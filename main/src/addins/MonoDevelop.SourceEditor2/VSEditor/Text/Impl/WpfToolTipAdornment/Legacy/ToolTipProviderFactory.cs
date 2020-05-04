@@ -13,7 +13,6 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Utilities;
     using System.ComponentModel.Composition;
-    using MonoDevelop.SourceEditor;
 
     [Export(typeof(IToolTipProviderFactory))]
     [Obsolete]
@@ -23,16 +22,15 @@ namespace Microsoft.VisualStudio.Text.AdornmentLibrary.ToolTip.Implementation
         [Export]
         [Name("ToolTip")]
         [Order()]
-        internal MDSpaceReservationManagerDefinition tooltipManager;
+        internal SpaceReservationManagerDefinition tooltipManager;
 
         public IToolTipProvider GetToolTipProvider(ITextView textView)
         {
-            if (!(textView is IMdTextView mdTextView))
-            {
-                return null;
-            }
+            var wpfTextView = textView as IMdTextView;
+            if (wpfTextView == null)
+                throw new ArgumentException("Invalid TextView");
 
-            return CreateToolTipProviderInternal(mdTextView);
+            return CreateToolTipProviderInternal(wpfTextView);
         }
 
         internal static ToolTipProvider CreateToolTipProviderInternal(IMdTextView view)

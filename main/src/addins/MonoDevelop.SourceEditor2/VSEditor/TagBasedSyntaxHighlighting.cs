@@ -67,54 +67,46 @@ namespace Microsoft.VisualStudio.Platform
 
 		public Task<HighlightedLine> GetHighlightedLineAsync (IDocumentLine line, CancellationToken cancellationToken)
 		{
-			var snapshotLine = (line as Mono.TextEditor.TextDocument.DocumentLineFromTextSnapshotLine)?.Line;
+			ITextSnapshotLine snapshotLine = (line as Mono.TextEditor.TextDocument.DocumentLineFromTextSnapshotLine)?.Line;
 			if ((this.classifier == null) || (snapshotLine == null)) {
 				return Task.FromResult (new HighlightedLine (line, new [] { new ColoredSegment (0, line.Length, ScopeStack.Empty) }));
 			}
+			List<ColoredSegment> coloredSegments = new List<ColoredSegment> ();
 
-			try {
- 				var coloredSegments = new List<ColoredSegment>();
- 				
- 				var snapshotSpan = new SnapshotSpan(snapshotLine.Snapshot, snapshotLine.Extent.Span);
- 				int start = snapshotSpan.Start.Position;
- 				int end = snapshotSpan.End.Position;
- 				
- 				var classifications = classifier.GetClassificationSpans(snapshotSpan);
- 				
- 				int lastClassifiedOffsetEnd = start;
- 				ScopeStack scopeStack;
- 				foreach (var curSpan in classifications)
- 				{
- 					if (curSpan.Span.Start > lastClassifiedOffsetEnd) {
- 						scopeStack = defaultScopeStack;
- 						var whitespaceSegment = new ColoredSegment (lastClassifiedOffsetEnd - start, curSpan.Span.Start - lastClassifiedOffsetEnd, scopeStack);
- 						coloredSegments.Add (whitespaceSegment);
- 					}
+			SnapshotSpan snapshotSpan = new SnapshotSpan(textView.TextBuffer.CurrentSnapshot, snapshotLine.Extent.Span);
+			int start = snapshotSpan.Start.Position;
+			int end = snapshotSpan.End.Position;
 
- 					scopeStack = GetScopeStackFromClassificationType (curSpan.ClassificationType);
- 					if (scopeStack.Peek ().StartsWith ("comment", StringComparison.Ordinal)) {
- 						ScanAndAddComment (coloredSegments, start, scopeStack, curSpan);
- 					} else {
- 						var curColoredSegment = new ColoredSegment (curSpan.Span.Start - start, curSpan.Span.Length, scopeStack);
- 						coloredSegments.Add (curColoredSegment);
- 					}
+			IList<ClassificationSpan> classifications = this.classifier.GetClassificationSpans (snapshotSpan);
 
- 					lastClassifiedOffsetEnd = curSpan.Span.End;
- 				}
+			int lastClassifiedOffsetEnd = start;
+			ScopeStack scopeStack;
+			foreach (ClassificationSpan curSpan in classifications) {
+				if (curSpan.Span.Start > lastClassifiedOffsetEnd) {
+					scopeStack = defaultScopeStack;
+					ColoredSegment whitespaceSegment = new ColoredSegment (lastClassifiedOffsetEnd - start, curSpan.Span.Start - lastClassifiedOffsetEnd, scopeStack);
+					coloredSegments.Add (whitespaceSegment);
+				}
 
- 				if (end > lastClassifiedOffsetEnd) {
- 					scopeStack = defaultScopeStack;
- 					var whitespaceSegment = new ColoredSegment (lastClassifiedOffsetEnd - start, end - lastClassifiedOffsetEnd, scopeStack);
- 					coloredSegments.Add (whitespaceSegment);
- 				}
- 				
- 				return Task.FromResult (new HighlightedLine (line, coloredSegments));
-			} catch (Exception e) {
-				LoggingService.LogInternalError ("Error while getting highlighted line " + line, e);
-				return Task.FromResult (new HighlightedLine (line, new [] { new ColoredSegment (0, line.Length, ScopeStack.Empty) }));
+				scopeStack = GetScopeStackFromClassificationType (curSpan.ClassificationType);
+				if (scopeStack.Peek ().StartsWith ("comment", StringComparison.Ordinal)) {
+					ScanAndAddComment (coloredSegments, start, scopeStack, curSpan);
+				} else {
+					var curColoredSegment = new ColoredSegment (curSpan.Span.Start - start, curSpan.Span.Length, scopeStack);
+					coloredSegments.Add (curColoredSegment);
+				}
+
+				lastClassifiedOffsetEnd = curSpan.Span.End;
 			}
-		}
 
+			if (end > lastClassifiedOffsetEnd) {
+				scopeStack = defaultScopeStack;
+				ColoredSegment whitespaceSegment = new ColoredSegment (lastClassifiedOffsetEnd - start, end - lastClassifiedOffsetEnd, scopeStack);
+				coloredSegments.Add (whitespaceSegment);
+			}
+
+			return Task.FromResult(new HighlightedLine (line, coloredSegments));
+		}
 		#region Tag Comment Scanning
 
 		void ScanAndAddComment (List<ColoredSegment> coloredSegments, int startOffset, ScopeStack commentScopeStack, ClassificationSpan classificationSpan)
@@ -206,19 +198,19 @@ namespace Microsoft.VisualStudio.Platform
 			}
 		}
 
-        private void OnClassificationChanged (object sender, ClassificationChangedEventArgs args)
-		{
-			var handler = _highlightingStateChanged;
-			if (handler != null) {
-				foreach (Mono.TextEditor.MdTextViewLineCollection.MdTextViewLine line in textView.TextViewLines) {
-					if (!line.HasDrawn) {
-                        line.HasDrawn = true;
-                        handler(this, new LineEventArgs(line.line));
+        private void OnClassificationChanged(object sender, ClassificationChangedEventArgs args)
+        {
+            var handler = _highlightingStateChanged;
+            if (handler != null)
+            {
+                foreach (Mono.TextEditor.MdTextViewLineCollection.MdTextViewLine line in textView.TextViewLines)
+                {
+                    if (line.Start.Position > args.ChangeSpan.End.Position || line.End.Position < args.ChangeSpan.Start)
                         continue;
-                    }
-				}
-			}
-		}
+                    handler(this, new LineEventArgs(line.line));
+                }
+            }
+        }
 
 		private ScopeStack GetScopeStackFromClassificationType (IClassificationType classificationType)
 		{

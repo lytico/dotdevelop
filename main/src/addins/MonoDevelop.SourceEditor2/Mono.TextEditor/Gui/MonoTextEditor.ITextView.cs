@@ -40,8 +40,8 @@ using System.Diagnostics;
 using MonoDevelop.Ide;
 using Microsoft.VisualStudio.Text.Classification;
 using System.Threading;
+using Microsoft.VisualStudio.Text.Operations.Implementation;
 using Microsoft.VisualStudio.Text.Operations;
-using MonoDevelop.SourceEditor;
 
 namespace Mono.TextEditor
 {
@@ -58,7 +58,7 @@ namespace Mono.TextEditor
 
 		ConnectionManager connectionManager;
 
-		TextEditorInitializationService factoryService;
+		TextEditorFactoryService factoryService;
 		int queuedSpaceReservationStackRefresh = 0;    //int so that it can be set via Interlocked.CompareExchange()
 
 		//		IEditorFormatMap _editorFormatMap;
@@ -68,7 +68,7 @@ namespace Mono.TextEditor
 		ITextSelection selection;
 
 		private IEditorOperations editorOperations;
-		internal IEditorOperations EditorOperations
+		internal IEditorOperations EditorOperations 
 		{
 			get {
 				if (editorOperations == null) {
@@ -109,12 +109,12 @@ namespace Mono.TextEditor
 		/// <param name="roles">Roles for this view.</param>
 		/// <param name="parentOptions">Parent options for this view.</param>
 		/// <param name="factoryService">Our handy text editor factory service.</param>
-		internal void Initialize (ITextViewModel textViewModel, ITextViewRoleSet roles, IEditorOptions parentOptions, TextEditorInitializationService factoryService, bool initialize = true)
+		internal void Initialize (ITextViewModel textViewModel, ITextViewRoleSet roles, IEditorOptions parentOptions, TextEditorFactoryService factoryService, bool initialize = true)
 		{
 			this.roles = roles;
 			this.factoryService = factoryService;
             GuardedOperations = this.factoryService.GuardedOperations;
-            _spaceReservationStack = new MDSpaceReservationStack(this.factoryService.OrderedSpaceReservationManagerDefinitions, this);
+            _spaceReservationStack = new SpaceReservationStack(this.factoryService.OrderedSpaceReservationManagerDefinitions, this);
 
 			this.TextDataModel = textViewModel.DataModel;
 			this.TextViewModel = textViewModel;
@@ -405,7 +405,8 @@ namespace Mono.TextEditor
 		/// </remarks>
 		private void SubscribeToEvents ()
 		{
-			IdeServices.DocumentManager.ActiveDocumentChanged += Workbench_ActiveDocumentChanged;
+			if (IdeApp.IsInitialized)
+				IdeApp.Workbench.ActiveDocumentChanged += Workbench_ActiveDocumentChanged;
 		}
 
 		void Workbench_ActiveDocumentChanged (object sender, EventArgs e)
@@ -415,14 +416,9 @@ namespace Mono.TextEditor
 
 		private void UnsubscribeFromEvents ()
 		{
-			IdeServices.DocumentManager.ActiveDocumentChanged -= Workbench_ActiveDocumentChanged;
+			if (IdeApp.IsInitialized)
+				IdeApp.Workbench.ActiveDocumentChanged -= Workbench_ActiveDocumentChanged;
 		}
-
-		static readonly string[] allowedTextViewCreationListeners = {
-			"MonoDevelop.SourceEditor.Braces.BraceCompletionManagerFactory",
-			"MonoDevelop.SourceEditor.CurrentLineSpaceReservationAgent.CurrentLineSpaceReservationAgent_ViewCreationListener",
-			"Microsoft.VisualStudio.Text.AdornmentLibrary.Squiggles.Implementation.WebToolingErrorProviderFactory"
-		};
 
 		private void BindContentTypeSpecificAssets (IContentType beforeContentType, IContentType afterContentType)
 		{
@@ -444,7 +440,7 @@ namespace Mono.TextEditor
 				}
 
 				var instantiatedExtension = factoryService.GuardedOperations.InstantiateExtension (extension, extension);
-				if (instantiatedExtension != null && allowedTextViewCreationListeners.Contains(instantiatedExtension.ToString())) {
+				if (instantiatedExtension != null) {
 					factoryService.GuardedOperations.CallExtensionPoint (instantiatedExtension,
 						() => instantiatedExtension.TextViewCreated (this));
 				}
@@ -496,13 +492,13 @@ namespace Mono.TextEditor
 #endif
 
 			if (!isClosed) {
-				bool newHasAggregateFocus = ((IdeServices.DocumentManager.ActiveDocument?.Editor?.Implementation as MonoDevelop.SourceEditor.SourceEditorView)?.TextEditor == this);
+				bool newHasAggregateFocus = ((IdeApp.Workbench.ActiveDocument?.Editor?.Implementation as MonoDevelop.SourceEditor.SourceEditorView)?.TextEditor == this);
 				if (newHasAggregateFocus != hasAggregateFocus) {
 					hasAggregateFocus = newHasAggregateFocus;
 
 					if (hasAggregateFocus) {
 						//Got focus so make sure that the view that had focus (which wasn't us since we didn't have focus before) raises its
-						//lost focus event before we raise our got focus event. This will potentially do bad things if someone changes focus
+						//lost focus event before we raise our got focus event. This will potentially do bad things if someone changes focus 
 						//if the lost aggregate focus handler.
 						Debug.Assert (ViewWithAggregateFocus != this);
 						if (ViewWithAggregateFocus != null) {
@@ -533,14 +529,9 @@ namespace Mono.TextEditor
 		}
 
 		public IGuardedOperations GuardedOperations;
-		internal MDSpaceReservationStack _spaceReservationStack;
+		internal SpaceReservationStack _spaceReservationStack;
 
-
-		// on Mac ITextView has the extra member GetSpaceReservationManager that isn't there on Windows
-		ISpaceReservationManager ITextView.GetSpaceReservationManager (string name) => throw new NotImplementedException();
-
-
-		public IMDSpaceReservationManager GetSpaceReservationManager (string name)
+		public ISpaceReservationManager GetSpaceReservationManager (string name)
 		{
 			if (name == null)
 				throw new ArgumentNullException ("name");
@@ -548,7 +539,7 @@ namespace Mono.TextEditor
 			return _spaceReservationStack.GetOrCreateManager (name);
 		}
 
-		internal TextEditorInitializationService ComponentContext {
+		internal TextEditorFactoryService ComponentContext {
 			get { return factoryService; }
 		}
 
@@ -575,47 +566,5 @@ namespace Mono.TextEditor
 				TextCaret.MoveTo (MultiSelectionBroker.PrimarySelection.InsertionPoint);
 			}
 		}
-
-		public void QueuePostLayoutAction (Action action)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public bool TryGetTextViewLines (out ITextViewLineCollection textViewLines)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public bool TryGetTextViewLineContainingBufferPosition (SnapshotPoint bufferPosition, out ITextViewLine textViewLine)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public void Focus ()
-		{
-		}
-
-#if MAC
-		public IXPlatAdornmentLayer GetXPlatAdornmentLayer (string name)
-		{
-			return null;
-		}
-
-		/// <summary>
-		/// Gets or sets the Zoom level for the <see cref="ITextView3"/> between 20% to 400%
-		/// </summary>
-		public double ZoomLevel {
-			get;
-			set;
-		}
-
-		public ITextViewLineSource FormattedLineSource { get; } = null;
-
-		public bool IsKeyboardFocused => HasFocus;
-
-		public event EventHandler IsKeyboardFocusedChanged;
-
-		public IViewSynchronizationManager SynchronizationManager { get; set; }
-#endif
 	}
 }

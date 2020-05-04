@@ -45,19 +45,14 @@ namespace Mono.TextEditor
 		{
 			this.editor = editor;
 
-			if (IdeTheme.AccessibilityEnabled) {
-				editor.Document.MarkerAdded += OnMarkerAdded;
-				editor.Document.MarkerRemoved += OnMarkerRemoved;
-				markerToAccessible = new Dictionary<TextLineMarker, AccessibilityMarkerProxy> ();
-			}
+			editor.Document.MarkerAdded += OnMarkerAdded;
+			editor.Document.MarkerRemoved += OnMarkerRemoved;
 		}
 
 		public override void Dispose ()
 		{
-			if (IdeTheme.AccessibilityEnabled) {
-				editor.Document.MarkerAdded -= OnMarkerAdded;
-				editor.Document.MarkerRemoved -= OnMarkerRemoved;
-			}
+			editor.Document.MarkerAdded -= OnMarkerAdded;
+			editor.Document.MarkerRemoved -= OnMarkerRemoved;
 
 			if (markerToAccessible != null) {
 				foreach (var proxy in markerToAccessible.Values) {
@@ -192,15 +187,21 @@ namespace Mono.TextEditor
 			}
 		}
 
-		Dictionary<TextLineMarker, AccessibilityMarkerProxy> markerToAccessible;
-
+		Dictionary<TextLineMarker, AccessibilityMarkerProxy> markerToAccessible = null;
 		void OnMarkerAdded (object sender, TextMarkerEvent e)
 		{
-			lock (markerToAccessible) {
-				var proxy = new AccessibilityMarkerProxy (e.TextMarker, editor, this);
-				Accessible.AddAccessibleChild (proxy.Accessible);
-				markerToAccessible [e.TextMarker] = proxy;
+			if (!IdeTheme.AccessibilityEnabled) {
+				return;
 			}
+
+			if (markerToAccessible == null) {
+				markerToAccessible = new Dictionary<TextLineMarker, AccessibilityMarkerProxy> ();
+			}
+
+			var proxy = new AccessibilityMarkerProxy (e.TextMarker, editor, this);
+			Accessible.AddAccessibleChild (proxy.Accessible);
+
+			markerToAccessible [e.TextMarker] = proxy;
 
 			if (focusMarkers != null) {
 				UpdateMarkers ();
@@ -209,13 +210,21 @@ namespace Mono.TextEditor
 
 		void OnMarkerRemoved (object sender, TextMarkerEvent e)
 		{
-			lock (markerToAccessible) {
-				if (!markerToAccessible.TryGetValue (e.TextMarker, out var proxy)) {
-					return;
-				}
-				Accessible.RemoveAccessibleChild (proxy.Accessible);
-				markerToAccessible.Remove (e.TextMarker);
+			if (!IdeTheme.AccessibilityEnabled) {
+				return;
 			}
+
+			if (markerToAccessible == null) {
+				return;
+			}
+
+			var proxy = markerToAccessible [e.TextMarker];
+			if (proxy == null) {
+				throw new Exception ("No accessible found for marker");
+			}
+
+			Accessible.RemoveAccessibleChild (proxy.Accessible);
+			markerToAccessible.Remove (e.TextMarker);
 
 			if (focusMarkers != null) {
 				UpdateMarkers ();

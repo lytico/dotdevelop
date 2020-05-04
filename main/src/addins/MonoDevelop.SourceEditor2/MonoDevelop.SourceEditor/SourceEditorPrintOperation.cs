@@ -32,8 +32,6 @@ using MonoDevelop.Ide.Editor;
 using MonoDevelop.Components;
 using MonoDevelop.Ide.Editor.Highlighting;
 using System.Threading;
-using MonoDevelop.Ide;
-using MonoDevelop.Ide.Fonts;
 
 namespace MonoDevelop.SourceEditor
 {
@@ -66,7 +64,7 @@ namespace MonoDevelop.SourceEditor
 			SetFooterFormat (settings.FooterFormat);
 			
 			style = SyntaxHighlightingService.GetEditorTheme (settings.EditorTheme);
-
+			
 			pageWidth = context.PageSetup.GetPageWidth (Unit.Pixel);
 			pageHeight = context.PageSetup.GetPageHeight (Unit.Pixel);
 			double contentHeight = pageHeight
@@ -109,11 +107,11 @@ namespace MonoDevelop.SourceEditor
 			
 				int startLine = pageNr * linesPerPage;
 				int endLine = Math.Min (startLine + linesPerPage - 1, editor.LineCount);
+				var theme =editor.Options.GetEditorTheme ();
 
 				//FIXME: use proper 1-layout-per-line
 				for (int i = startLine; i < endLine; i++) {
 					var line = editor.GetLine (i + 1);
-					layout.FontDescription = settings.Font;
 					if (!settings.UseHighlighting) {
 						string text = editor.GetTextAt (line);
 						text = text.Replace ("\t", new string (' ', settings.TabSize));
@@ -129,7 +127,7 @@ namespace MonoDevelop.SourceEditor
 					var highlightedLine = await editor.SyntaxHighlighting.GetHighlightedLineAsync (line, default(CancellationToken));
 					var lineOffset = line.Offset;
 					foreach (var chunk in highlightedLine.Segments) {
-						var chunkStyle = style.GetChunkStyle (chunk.ScopeStack);
+						var chunkStyle = theme.GetChunkStyle (chunk.ScopeStack);
 						string text = editor.GetTextAt (lineOffset + chunk.Offset, chunk.Length);
 						text = text.Replace ("\t", new string (' ', settings.TabSize));
 						layout.SetText (text);
@@ -291,22 +289,19 @@ namespace MonoDevelop.SourceEditor
 		
 		private SourceEditorPrintSettings ()
 		{
-			var font = Xwt.Drawing.Font.FromName (DefaultSourceEditorOptions.Instance.FontName);
-			if (font == null) {
+			try {
+				Font = Pango.FontDescription.FromString (DefaultSourceEditorOptions.Instance.FontName);
+			} catch {
 				LoggingService.LogWarning ("Could not load font: {0}", DefaultSourceEditorOptions.Instance.FontName);
-			} else {
-				Font = font.ToPangoFont ();
 			}
-
 			if (Font == null || String.IsNullOrEmpty (Font.Family))
 				Font = Pango.FontDescription.FromString (TextEditorOptions.DEFAULT_FONT);
-			if (Font != null) {
-				Font.Size = (int)(Font.Size * 0.5);
-			}
+			//if (Font != null)
+			//	Font.Size = (int)(Font.Size * DefaultSourceEditorOptions.Instance.Zoom);
 			TabSize = DefaultSourceEditorOptions.Instance.TabSize;
 			HeaderFormat = "%F";
 			FooterFormat = GettextCatalog.GetString ("Page %N of %Q");
-			EditorTheme = SyntaxHighlightingService.GetDefaultColorStyleName (MonoDevelop.Ide.Theme.Light);
+			EditorTheme = MonoDevelop.Ide.Editor.Highlighting.EditorTheme.DefaultThemeName;
 			HeaderSeparatorWeight = FooterSeparatorWeight = 0.5;
 			HeaderPadding = FooterPadding = 6;
 			UseHighlighting = true;

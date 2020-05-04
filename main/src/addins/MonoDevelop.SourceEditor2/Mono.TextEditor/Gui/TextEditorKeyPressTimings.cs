@@ -76,7 +76,7 @@ namespace Mono.TextEditor
 
 		public TextEditorKeyPressTimings (TextDocument document)
 		{
-			telemetry = IdeServices.DesktopService?.PlatformTelemetry;
+			telemetry = DesktopService.PlatformTelemetry;
 
 			openTime = GetCurrentTime ();
 

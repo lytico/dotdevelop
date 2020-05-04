@@ -80,7 +80,7 @@ namespace MonoDevelop.SourceEditor
 		{
 			MouseHover?.Invoke (this, new TextEventArgsWrapper (args));
 			result.Cursor = textLinkCursor;
-			if (OnlyShowLinkOnHover && args.LineSegment != null) {
+			if (OnlyShowLinkOnHover) {
 				editor.GetTextEditorData ().Document.CommitLineUpdate (args.LineSegment);
 				editor.TextViewMargin.HoveredLineChanged += new UpdateOldLine (editor, args.LineSegment).TextViewMargin_HoveredLineChanged;
 			}

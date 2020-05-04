@@ -5,10 +5,6 @@
 // This file contain implementations details that are subject to change without notice.
 // Use at your own risk.
 //
-
-// this conflicts with the new editor, but it's internal and will be removed
-#pragma warning disable CS0436 // Type conflicts with imported type
-
 namespace Microsoft.VisualStudio.Text.Editor.Implementation
 {
     using System;
@@ -30,16 +26,15 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
     using Microsoft.VisualStudio.Text.Editor.Implementation;
     using Mono.TextEditor;
     using Microsoft.VisualStudio.Platform;
-    using MonoDevelop.SourceEditor;
 
     /// <summary>
     /// Provides a VisualStudio Service that aids in creation of Editor Views
     /// </summary>
-    [Export(typeof(ITextEditorInitializationService))]
-    internal sealed class TextEditorInitializationService : ITextEditorInitializationService, IPartImportsSatisfiedNotification
+    [Export(typeof(ITextEditorFactoryService))]
+    internal sealed class TextEditorFactoryService : ITextEditorFactoryService, IPartImportsSatisfiedNotification
     {
         [Import]
-        internal IGuardedOperations GuardedOperations { get; set; }
+        internal GuardedOperations GuardedOperations { get; set; }
 
         [Import]
         internal IContentTypeRegistryService ContentTypeRegistryService { get; set; }
@@ -62,11 +57,9 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
         [Import]
         internal IEditorOptionsFactoryService EditorOptionsFactoryService { get; set; }
 
-        [Import]
-        internal ITextSearchService2 TextSearchService { get; set; }
 
         [Import]
-        internal IFeatureServiceFactory FeatureServiceFactory { get; set; }
+        internal ITextSearchService2 TextSearchService { get; set; }
 
         [Import]
         internal ITextStructureNavigatorSelectorService TextStructureNavigatorSelectorService { get; set; }
@@ -83,7 +76,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
         [Import]
         internal ISmartIndentationService SmartIndentationService { get; set; }
 
-        [Import(AllowDefault = true)]
+        [Import(AllowDefault=true)]
         internal IOutliningManagerService OutliningManagerService { get; set; }
 
         [Import]
@@ -109,29 +102,30 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                                                                                      PredefinedTextViewRoles.Structured,
                                                                                      PredefinedTextViewRoles.Zoomable);
 
-        private static readonly string[] allowedTextViewModelProviders =
+        public ITextView CreateTextView (ITextBuffer textBuffer)
         {
-            "WebToolingAddin.HtmlTextViewModelProvider" // for Razor
-        };
+            MonoDevelop.Ide.Editor.ITextDocument textDocument = textBuffer.GetTextEditor();
+            TextEditor textEditor = textDocument as TextEditor;
 
-        public ITextView CreateTextView(MonoDevelop.Ide.Editor.TextEditor textEditor)
+            return CreateTextView(textEditor);
+        }
+
+        public ITextView CreateTextView (MonoDevelop.Ide.Editor.TextEditor textEditor, ITextViewRoleSet roles = null, IEditorOptions parentOptions = null)
         {
             if (textEditor == null)
             {
                 throw new ArgumentNullException("textEditor");
             }
 
-            var roles = _defaultRoles;
+            if (roles == null) {
+                roles = _defaultRoles;
+            }
 
             ITextBuffer textBuffer = textEditor.GetContent<Mono.TextEditor.ITextEditorDataProvider>().GetTextEditorData().Document.TextBuffer;
             ITextDataModel dataModel = new VacuousTextDataModel(textBuffer);
 
-            var providers = TextViewModelProviders
-                .Where (t => allowedTextViewModelProviders.Contains (t.Value.ToString ()))
-                .ToArray ();
-
             ITextViewModel viewModel = UIExtensionSelector.InvokeBestMatchingFactory
-                            (providers,
+                            (TextViewModelProviders,
                              dataModel.ContentType,
                              roles,
                              (provider) => (provider.CreateTextViewModel(dataModel, roles)),
@@ -140,10 +134,8 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                              this) ?? new VacuousTextViewModel(dataModel);
 
             var view = ((MonoDevelop.SourceEditor.SourceEditorView)textEditor.Implementation).TextEditor;
-            view.Initialize(viewModel, roles, this.EditorOptionsFactoryService.GlobalOptions, this);
+            view.Initialize(viewModel, roles, parentOptions ?? this.EditorOptionsFactoryService.GlobalOptions, this);
             view.Properties.AddProperty(typeof(MonoDevelop.Ide.Editor.TextEditor), textEditor);
-
-            FeatureServiceFactory.GetOrCreate(view).Disable(PredefinedEditorFeatureNames.AsyncCompletion, EmptyFeatureController.Instance);
 
             this.TextViewCreated?.Invoke(this, new TextViewCreatedEventArgs(view));
 
@@ -179,30 +171,21 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             return new TextViewRoleSet(roles);
         }
 
-        private static ITextViewRoleSet RolesFromParameters(params string[] roles)
+        private static ITextViewRoleSet RolesFromParameters (params string[] roles)
         {
             return new TextViewRoleSet(roles);
         }
 
         [ImportMany]
-        private List<Lazy<MDSpaceReservationManagerDefinition, IOrderable>> _spaceReservationManagerDefinitions = null;
+        private List<Lazy<SpaceReservationManagerDefinition, IOrderable>> _spaceReservationManagerDefinitions = null;
         internal Dictionary<string, int> OrderedSpaceReservationManagerDefinitions = new Dictionary<string, int>();
 
         public void OnImportsSatisfied()
         {
-            IList<Lazy<MDSpaceReservationManagerDefinition, IOrderable>> orderedManagers = Orderer.Order(_spaceReservationManagerDefinitions);
+            IList<Lazy<SpaceReservationManagerDefinition, IOrderable>> orderedManagers = Orderer.Order(_spaceReservationManagerDefinitions);
             for (int i = 0; (i < orderedManagers.Count); ++i)
             {
                 this.OrderedSpaceReservationManagerDefinitions.Add(orderedManagers[i].Metadata.Name, i);
-            }
-        }
-
-        sealed class EmptyFeatureController : IFeatureController
-        {
-            internal static readonly EmptyFeatureController Instance = new EmptyFeatureController();
-
-            private EmptyFeatureController()
-            {
             }
         }
     }

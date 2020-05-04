@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation. All rights reserved.
 //  Licensed under the MIT License. See License.txt in the project root for license information.
 //
-namespace MonoDevelop.SourceEditor
+namespace Microsoft.VisualStudio.Text.Editor
 {
     using System.Windows.Media;
     using System;
@@ -10,13 +10,13 @@ namespace MonoDevelop.SourceEditor
     /// <summary>
     /// Handles the display of space reservation adornments.
     /// </summary>
-    public interface IMDSpaceReservationAgent
+    public interface ISpaceReservationAgent
     {
         /// <summary>
-        /// Positions and displays the contents of the the <see cref="IMDSpaceReservationAgent"/>.
+        /// Positions and displays the contents of the the <see cref="ISpaceReservationAgent"/>.
         /// </summary>
         /// <param name="reservedSpace">Currently reserved space.</param>
-        /// <returns>The space. If null is returned, the <see cref="IMDSpaceReservationManager"/> will remove the agent.</returns>
+        /// <returns>The space. If null is returned, the <see cref="ISpaceReservationManager"/> will remove the agent.</returns>
         /// <remarks>If an agent does not want to be removed, but also does not wish to request any additional space, it can return a non-null but empty Geometry.</remarks>
         Geometry PositionAndDisplay(Geometry reservedSpace);
 

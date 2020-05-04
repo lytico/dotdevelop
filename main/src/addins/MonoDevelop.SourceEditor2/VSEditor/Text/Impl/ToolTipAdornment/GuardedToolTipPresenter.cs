@@ -25,8 +25,6 @@
 
         internal IToolTipPresenter Presenter { get; }
 
-        public bool IsMouseOverAggregated => false;
-
         public void Dismiss()
         {
             if (!this.isDismissed)

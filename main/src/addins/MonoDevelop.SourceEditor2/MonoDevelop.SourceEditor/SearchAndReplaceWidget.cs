@@ -353,7 +353,7 @@ namespace MonoDevelop.SourceEditor
 		
 		internal void CheckSearchPatternCasing (string searchPattern)
 		{
-			if (!DisableAutomaticSearchPatternCaseMatch && PropertyService.Get ("AutoSetPatternCasing", false)) {
+			if (!DisableAutomaticSearchPatternCaseMatch && PropertyService.Get ("AutoSetPatternCasing", true)) {
 				IsCaseSensitive = searchPattern.Any (ch => Char.IsUpper (ch));
 				SetSearchOptions ();
 			}

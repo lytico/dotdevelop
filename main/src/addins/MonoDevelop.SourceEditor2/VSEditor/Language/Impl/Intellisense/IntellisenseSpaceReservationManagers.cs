@@ -3,37 +3,36 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
-namespace MonoDevelop.SourceEditor
+namespace Microsoft.VisualStudio.Language.Intellisense.Implementation
 {
     internal class IntellisenseSpaceReservationManagers
     {
         [Export]
         [Name(CurrentLineSpaceReservationAgent.CurrentLineSRManagerName)]
         [Order(Before = IntellisenseSpaceReservationManagerNames.SmartTagSpaceReservationManagerName)]
-        internal MDSpaceReservationManagerDefinition currentLineManager;
+        internal SpaceReservationManagerDefinition currentLineManager;
 
         [Export]
         [Name(IntellisenseSpaceReservationManagerNames.SmartTagSpaceReservationManagerName)]
         [Order(Before = IntellisenseSpaceReservationManagerNames.QuickInfoSpaceReservationManagerName)]
-        internal MDSpaceReservationManagerDefinition smartTagManager;
+        internal SpaceReservationManagerDefinition smartTagManager;
 
         [Export]
         [Name(IntellisenseSpaceReservationManagerNames.QuickInfoSpaceReservationManagerName)]
         [Order(Before = IntellisenseSpaceReservationManagerNames.SignatureHelpSpaceReservationManagerName)]
-        internal MDSpaceReservationManagerDefinition quickInfoManager;
+        internal SpaceReservationManagerDefinition quickInfoManager;
 
         [Export]
         [Name(IntellisenseSpaceReservationManagerNames.SignatureHelpSpaceReservationManagerName)]
         [Order(Before = IntellisenseSpaceReservationManagerNames.CompletionSpaceReservationManagerName)]
-        internal MDSpaceReservationManagerDefinition signatureHelpManager;
+        internal SpaceReservationManagerDefinition signatureHelpManager;
 
         [Export]
         [Name(IntellisenseSpaceReservationManagerNames.CompletionSpaceReservationManagerName)]
         [Order()]
-        internal MDSpaceReservationManagerDefinition completionManager;
+        internal SpaceReservationManagerDefinition completionManager;
     }
 }

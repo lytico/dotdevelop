@@ -5,8 +5,7 @@
 // This file contain implementations details that are subject to change without notice.
 // Use at your own risk.
 //
-
-namespace MonoDevelop.SourceEditor
+namespace Microsoft.VisualStudio.Text.Editor.Implementation
 {
     using System;
     using System.Collections.Generic;
@@ -18,13 +17,13 @@ namespace MonoDevelop.SourceEditor
     using Microsoft.VisualStudio.Text.Editor;
     using MonoDevelop.Components;
 
-    internal class SpaceReservationManager : IMDSpaceReservationManager
+    internal class SpaceReservationManager : ISpaceReservationManager
     {
-        public string Name { get; }
-        public int Rank { get; }
-        private readonly Mono.TextEditor.MonoTextEditor _view;
+        public readonly string Name;
+        public readonly int Rank;
+		private readonly Mono.TextEditor.MonoTextEditor _view;
         private bool _hasAggregateFocus;
-        internal IList<IMDSpaceReservationAgent> _agents = new List<IMDSpaceReservationAgent>();
+        internal IList<ISpaceReservationAgent> _agents = new List<ISpaceReservationAgent>();
 
 		public SpaceReservationManager(string name, int rank, Mono.TextEditor.MonoTextEditor view)
         {
@@ -35,13 +34,12 @@ namespace MonoDevelop.SourceEditor
         }
 
         #region ISpaceReservationManager Members
-
-        public IMDSpaceReservationAgent CreatePopupAgent(ITrackingSpan visualSpan, PopupStyles styles, Xwt.Widget content)
+        public ISpaceReservationAgent CreatePopupAgent(ITrackingSpan visualSpan, PopupStyles styles, Xwt.Widget content)
         {
             return new PopupAgent(_view, this, visualSpan, styles, content);
         }
 
-        public void UpdatePopupAgent(IMDSpaceReservationAgent agent, ITrackingSpan visualSpan, PopupStyles styles)
+        public void UpdatePopupAgent(ISpaceReservationAgent agent, ITrackingSpan visualSpan, PopupStyles styles)
         {
             if (agent == null)
                 throw new ArgumentNullException("agent");
@@ -58,12 +56,12 @@ namespace MonoDevelop.SourceEditor
             _view.QueueSpaceReservationStackRefresh();
         }
 
-        public ReadOnlyCollection<IMDSpaceReservationAgent> Agents
+        public ReadOnlyCollection<ISpaceReservationAgent> Agents
         {
-            get { return new ReadOnlyCollection<IMDSpaceReservationAgent>(_agents); }
+            get { return new ReadOnlyCollection<ISpaceReservationAgent>(_agents); }
         }
 
-        public void AddAgent(IMDSpaceReservationAgent agent)
+        public void AddAgent(ISpaceReservationAgent agent)
         {
             if (agent == null)
                 throw new ArgumentNullException("agent");
@@ -74,7 +72,7 @@ namespace MonoDevelop.SourceEditor
             _view.QueueSpaceReservationStackRefresh();
         }
 
-        public bool RemoveAgent(IMDSpaceReservationAgent agent)
+        public bool RemoveAgent(ISpaceReservationAgent agent)
         {
             if (agent == null)
                 throw new ArgumentNullException("agent");
@@ -91,7 +89,7 @@ namespace MonoDevelop.SourceEditor
             return false;
         }
 
-        public event EventHandler<MDSpaceReservationAgentChangedEventArgs> AgentChanged;
+        public event EventHandler<SpaceReservationAgentChangedEventArgs> AgentChanged;
 
         public bool IsMouseOver
         {
@@ -124,9 +122,9 @@ namespace MonoDevelop.SourceEditor
 
         public event EventHandler LostAggregateFocus;
         public event EventHandler GotAggregateFocus;
-#endregion
+        #endregion
 
-        internal void ChangeAgents(IMDSpaceReservationAgent oldAgent, IMDSpaceReservationAgent newAgent)
+        internal void ChangeAgents(ISpaceReservationAgent oldAgent, ISpaceReservationAgent newAgent)
         {
             if (oldAgent != null)
             {
@@ -135,9 +133,9 @@ namespace MonoDevelop.SourceEditor
                 oldAgent.Hide();
             }
 
-            EventHandler<MDSpaceReservationAgentChangedEventArgs> agentChanged = this.AgentChanged;
+            EventHandler<SpaceReservationAgentChangedEventArgs> agentChanged = this.AgentChanged;
             if (agentChanged != null)
-                agentChanged(this, new MDSpaceReservationAgentChangedEventArgs(oldAgent, newAgent));
+                agentChanged(this, new SpaceReservationAgentChangedEventArgs(oldAgent, newAgent));
 
             if (newAgent != null)
             {
@@ -181,10 +179,10 @@ namespace MonoDevelop.SourceEditor
         /// </summary>
         void OnViewClosed(object sender, EventArgs e)
         {
-            List<IMDSpaceReservationAgent> agentsToRemove = new List<IMDSpaceReservationAgent>();
+            List<ISpaceReservationAgent> agentsToRemove = new List<ISpaceReservationAgent>();
             agentsToRemove.AddRange (_agents);
 
-            foreach (IMDSpaceReservationAgent agent in agentsToRemove)
+            foreach (ISpaceReservationAgent agent in agentsToRemove)
             {
                 this.RemoveAgent (agent);
             }
@@ -192,7 +190,7 @@ namespace MonoDevelop.SourceEditor
             _view.Closed -= this.OnViewClosed;
         }
 
-        public void PositionAndDisplay(GeometryGroup reservedGeometry)
+        internal void PositionAndDisplay(GeometryGroup reservedGeometry)
         {
             _view.GuardedOperations.CallExtensionPoint(this,
                () =>
@@ -203,7 +201,7 @@ namespace MonoDevelop.SourceEditor
                        {
                            for (int i = _agents.Count - 1; (i >= 0); --i)
                            {
-                               IMDSpaceReservationAgent agent = _agents[i];
+                               ISpaceReservationAgent agent = _agents[i];
 
                                Geometry requestedGeometry = agent.PositionAndDisplay(reservedGeometry);
                                if (requestedGeometry == null)
@@ -219,7 +217,7 @@ namespace MonoDevelop.SourceEditor
                        {
                            for (int i = _agents.Count - 1; (i >= 0); --i)
                            {
-                               IMDSpaceReservationAgent agent = _agents[i];
+                               ISpaceReservationAgent agent = _agents[i];
                                _agents.RemoveAt(i);
                                this.ChangeAgents(agent, null);
                            }

@@ -438,7 +438,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                 // The mouse left the element over which it was originally positioned.  This may or
                 // may not mean that the mouse left the span of text to which the popup is bound.
                 _textView.VisualElement.GetPointer (out int x, out int y);
-                if (this.ShouldClearToolTipOnMouseMove(new Point(x,y)))
+                if (this.ShouldClearToolTipOnMouseMove(new Xwt.Point(x,y)))
                 {
                     shouldRemoveAgent = true;
                 }
@@ -519,7 +519,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
 
         #endregion
 
-        internal bool ShouldClearToolTipOnMouseMove(Point mousePt)
+        internal bool ShouldClearToolTipOnMouseMove(Xwt.Point mousePt)
         {
             _textView.VisualElement.GetPointer(out int x, out int y);
             var topLeft = _textView.VisualElement.GetScreenCoordinates(new Gdk.Point(0, 0));
@@ -531,7 +531,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             return this.InnerShouldClearToolTipOnMouseMove(mousePt);
         }
 
-        internal bool InnerShouldClearToolTipOnMouseMove(Point mousePt)
+        internal bool InnerShouldClearToolTipOnMouseMove(Xwt.Point mousePt)
         {
             if ((mousePt.X >= 0.0) && (mousePt.X < _textView.ViewportWidth) &&
                 (mousePt.Y >= 0.0) && (mousePt.Y < _textView.ViewportHeight))
@@ -572,13 +572,13 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             return true;
         }
 
-        internal Point GetScreenPointFromTextXY(double x, double y)
+        internal Xwt.Point GetScreenPointFromTextXY(double x, double y)
         {
             return _textView.VisualElement.GetScreenCoordinates(new Gdk.Point((int)(x - _textView.ViewportLeft), (int)(y - _textView.ViewportTop))).ToXwtPoint();
         }
 
         #region Static positioning helpers
-        internal static Rect GetLocation(PopupStyles style, Size desiredSize, Rect spanRectInScreenCoordinates, Rect reservedRect, Rect screenRect)
+        internal static Rect GetLocation(PopupStyles style, Xwt.Size desiredSize, Rect spanRectInScreenCoordinates, Rect reservedRect, Rect screenRect)
         {
             if ((style & PopupStyles.PositionLeftOrRight) != 0)
             {
@@ -598,7 +598,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             {
                 //Position above or below.
                 double xPosition = ((style & PopupStyles.RightOrBottomJustify) != 0)
-                                   ? (spanRectInScreenCoordinates.Right - desiredSize.Width)    //Right justified  
+                                   ? (spanRectInScreenCoordinates.Right - desiredSize.Width)    //Right justified
                                    : spanRectInScreenCoordinates.Left;                          //Left justified
 
                 double yPosition = ((style & PopupStyles.PreferLeftOrTopPosition) != 0)
@@ -610,7 +610,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             }
         }
 
-        internal static Rect ShiftHorizontallyToFitScreen(double x, double y, Size desiredSize, Rect screenRect)
+        internal static Rect ShiftHorizontallyToFitScreen(double x, double y, Xwt.Size desiredSize, Rect screenRect)
         {
             if ((x + desiredSize.Width) > screenRect.Right)
                 x = screenRect.Right - desiredSize.Width;
@@ -621,7 +621,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             return new Rect(x, y, desiredSize.Width, desiredSize.Height);
         }
 
-        internal static Rect ShiftVerticallyToFitScreen(double x, double y, Size desiredSize, Rect screenRect)
+        internal static Rect ShiftVerticallyToFitScreen(double x, double y, Xwt.Size desiredSize, Rect screenRect)
         {
             if ((y + desiredSize.Height) > screenRect.Bottom)
                 y = screenRect.Bottom - desiredSize.Height;
@@ -677,9 +677,9 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
 
             public abstract bool IsKeyboardFocusWithin { get; }
 
-            public abstract void DisplayAt(Point point);
+            public abstract void DisplayAt(Xwt.Point point);
             public abstract void Hide();
-            public abstract Size Size { get; }
+            public abstract Xwt.Size Size { get; }
         }
 
 		internal class PopUpContainer : PopupOrWindowContainer
@@ -714,10 +714,10 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
 			internal XwtThemedPopup _popup = new XwtThemedPopup();
 #endif
 
-            // WPF popup doesn't detach its child from the visual tree when the popup is not open, 
+            // WPF popup doesn't detach its child from the visual tree when the popup is not open,
             // even if we assign Child property to null. That prevents reusing of the popup content.
             // And assiging popup's Child to null when the popup is still open is expensive
-            // as it requires full subtree traversal to update relevant properties, see 
+            // as it requires full subtree traversal to update relevant properties, see
             // FrameworkElement.ChangeLogicalParent() sources.
             // The solution is to have a neutral control as the popup's child and attach the real content
             // to that control instead of popup itself. Then we can safely (and more effectively)
@@ -738,7 +738,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                 _popupContentContainer.Content = null;
             }
 
-            public override void DisplayAt(Point point)
+            public override void DisplayAt(Xwt.Point point)
             {
                 //The horizontal and verical offsets are specified in terms of device pixels
                 //so convert logical pixel position in point to device pixels.
@@ -774,7 +774,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
                 }
             }
 
-            public override Size Size
+            public override Xwt.Size Size
             {
                 get
                 {

@@ -153,7 +153,7 @@
 
         protected IMdTextView WpfTextView => this.textView as IMdTextView;
 
-        protected Point GetScreenPointFromTextXY(double x, double y)
+        protected Xwt.Point GetScreenPointFromTextXY(double x, double y)
         {
             var view = WpfTextView;
             Debug.Assert(view != null);

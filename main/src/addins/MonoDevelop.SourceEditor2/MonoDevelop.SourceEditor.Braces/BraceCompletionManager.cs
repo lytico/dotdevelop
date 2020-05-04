@@ -5,6 +5,9 @@
 // This file contain implementations details that are subject to change without notice.
 // Use at your own risk.
 //
+
+using Microsoft.VisualStudio.Utilities;
+
 namespace MonoDevelop.SourceEditor.Braces
 {
 	using Microsoft.VisualStudio.Text;
@@ -16,7 +19,7 @@ namespace MonoDevelop.SourceEditor.Braces
 	using System.Diagnostics;
 
 	/// <summary>
-	/// A per view manager for brace completion. This is called by the command filter in the 
+	/// A per view manager for brace completion. This is called by the command filter in the
 	/// editor pkg.
 	/// </summary>
 	internal sealed class BraceCompletionManager : IBraceCompletionManager
@@ -27,7 +30,7 @@ namespace MonoDevelop.SourceEditor.Braces
 		private readonly IBraceCompletionAggregatorFactory _sessionFactory;
 		private readonly IBraceCompletionAggregator _sessionAggregator;
 		private readonly ITextView _textView;
-		private readonly GuardedOperations _guardedOperations;
+		private readonly IGuardedOperations _guardedOperations;
 
 		private IBraceCompletionSession _postSession;
 		private IBraceCompletionSession _waitingSession;
@@ -37,7 +40,7 @@ namespace MonoDevelop.SourceEditor.Braces
 
 		#region Constructors
 
-		internal BraceCompletionManager (ITextView textView, IBraceCompletionStack stack, IBraceCompletionAggregatorFactory sessionFactory, GuardedOperations guardedOperations)
+		internal BraceCompletionManager (ITextView textView, IBraceCompletionStack stack, IBraceCompletionAggregatorFactory sessionFactory, IGuardedOperations guardedOperations)
 		{
 			_textView = textView;
 			_stack = stack;

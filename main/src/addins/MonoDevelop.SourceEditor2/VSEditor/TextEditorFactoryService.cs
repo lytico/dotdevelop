@@ -34,7 +34,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
     internal sealed class TextEditorFactoryService : ITextEditorFactoryService, IPartImportsSatisfiedNotification
     {
         [Import]
-        internal GuardedOperations GuardedOperations { get; set; }
+        internal IGuardedOperations GuardedOperations { get; set; }
 
         [Import]
         internal IContentTypeRegistryService ContentTypeRegistryService { get; set; }

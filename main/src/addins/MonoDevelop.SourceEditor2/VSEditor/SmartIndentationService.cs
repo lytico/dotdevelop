@@ -20,7 +20,7 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
         internal List<Lazy<ISmartIndentProvider, IContentTypeMetadata>> SmartIndentProviders { get; set; }
 
         [Import]
-        internal GuardedOperations GuardedOperations { get; set; }
+        internal IGuardedOperations GuardedOperations { get; set; }
 
         [Import]
         internal IContentTypeRegistryService ContentTypeRegistryService { get; set; }
@@ -71,12 +71,12 @@ namespace Microsoft.VisualStudio.Text.Editor.Implementation
             else
                 return GuardedOperations.InvokeBestMatchingFactory
                                             (SmartIndentProviders, textView.TextDataModel.ContentType,
-                                             (provider) => (provider.CreateSmartIndent(textView)), ContentTypeRegistryService, this) 
+                                             (provider) => (provider.CreateSmartIndent(textView)), ContentTypeRegistryService, this)
                        ?? this;
         }
 
         /// <summary>
-        /// This is the vacuous implementation for ContentTypes that have no provided ISmartIndent 
+        /// This is the vacuous implementation for ContentTypes that have no provided ISmartIndent
         /// </summary>
         public int? GetDesiredIndentation(ITextSnapshotLine line)
         {

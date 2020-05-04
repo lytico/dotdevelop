@@ -5,6 +5,9 @@
 // This file contain implementations details that are subject to change without notice.
 // Use at your own risk.
 //
+
+using Microsoft.VisualStudio.Utilities;
+
 namespace MonoDevelop.SourceEditor.Braces
 {
 	using Microsoft.VisualStudio.Text;
@@ -18,7 +21,7 @@ namespace MonoDevelop.SourceEditor.Braces
 	/// <summary>
 	/// Represents the stack of active brace completion sessions.
 	/// The stack handles removing sessions no longer in focus as
-	/// well as marking the inner most closing brace with the 
+	/// well as marking the inner most closing brace with the
 	/// adornment.
 	/// </summary>
 	internal class BraceCompletionStack : IBraceCompletionStack
@@ -31,11 +34,11 @@ namespace MonoDevelop.SourceEditor.Braces
 
 		private IBraceCompletionAdornmentServiceFactory _adornmentServiceFactory;
 		private IBraceCompletionAdornmentService _adornmentService;
-		private GuardedOperations _guardedOperations;
+		private IGuardedOperations _guardedOperations;
 		#endregion
 
 		#region Constructors
-		public BraceCompletionStack (ITextView textView, IBraceCompletionAdornmentServiceFactory adornmentFactory, GuardedOperations guardedOperations)
+		public BraceCompletionStack (ITextView textView, IBraceCompletionAdornmentServiceFactory adornmentFactory, IGuardedOperations guardedOperations)
 		{
 			_adornmentServiceFactory = adornmentFactory;
 			_stack = new Stack<IBraceCompletionSession> ();
@@ -188,7 +191,7 @@ namespace MonoDevelop.SourceEditor.Braces
 
 		// Verify that the top most session is still valid after a buffer change
 		// This handles any issues that could result from text being replaced
-		// or multi view scenarios where the caret is not being moved in the 
+		// or multi view scenarios where the caret is not being moved in the
 		// current view.
 		private void SubjectBuffer_PostChanged (object sender, EventArgs e)
 		{

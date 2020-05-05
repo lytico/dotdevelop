@@ -20,9 +20,9 @@
 		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.MultiCaret.Implementation.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.Outlining.Implementation.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.PatternMatching.Implementation.dll" />
-		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Cocoa.dll" />
+		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Gtk.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Utilities.dll" />
-		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Cocoa.Utilities.dll" />
+		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Gtk.Utilities.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.Text.UI.Wpf.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.UI.Text.Commanding.Implementation.dll" />
 		<Import assembly="../../../bin/Microsoft.VisualStudio.UI.Text.EditorOperations.Implementation.dll" />
@@ -32,7 +32,7 @@
 	</Runtime>
 	<Extension path="/MonoDevelop/Ide/Composition">
 		<!-- these are coming from vs-editor-core (Cocoa implementations) -->
-		<Assembly file="Microsoft.CodeAnalysis.EditorFeatures.Cocoa.dll" />
+		<Assembly file="Microsoft.CodeAnalysis.EditorFeatures.Gtk.dll" />
 		<Assembly file="Microsoft.VisualStudio.Language.StandardClassification.Implementation.dll" />
 		<Assembly file="Microsoft.VisualStudio.Logic.Text.Navigation.NavigationProviders.dll" />
 		<Assembly file="Microsoft.VisualStudio.Logic.Text.UrlTagger.Implementation.dll" />
@@ -75,9 +75,9 @@
 		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.Outlining.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.PatternMatching.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Utilities.dll" />
-		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Cocoa.Utilities.dll" />
+		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Gtk.Utilities.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Wpf.dll" />
-		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Cocoa.dll" />
+		<Assembly file="../../../bin/Microsoft.VisualStudio.Text.UI.Gtk.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.Commanding.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.EditorOperations.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.EditorPrimitives.Implementation.dll" />

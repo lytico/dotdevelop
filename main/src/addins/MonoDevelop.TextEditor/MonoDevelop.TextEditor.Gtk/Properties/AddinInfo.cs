@@ -23,7 +23,7 @@ using System;
 using Mono.Addins;
 using Mono.Addins.Description;
 
-[assembly:Addin ("TextEditor.Cocoa",
+[assembly:Addin ("TextEditor.Gtk",
         Namespace = "MonoDevelop",
         Version = MonoDevelop.BuildInfo.Version,
         Category = "MonoDevelop Core")]

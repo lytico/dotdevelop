@@ -22,31 +22,33 @@
 using System;
 using System.Windows;
 
-using AppKit;
+using Xwt;
 
 using Gdk;
-
+using Gtk;
 using Microsoft.VisualStudio.Text.Classification;
 
 using MonoDevelop.Core;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Documents;
 using MonoDevelop.Projects;
+using Font = Xwt.Drawing.Font;
 
 namespace MonoDevelop.TextEditor
 {
 	[ExportDocumentControllerFactory (FileExtension = "*", InsertBefore = "TextEditor")]
-	class CocoaTextViewDisplayBinding : TextViewDisplayBinding<CocoaTextViewImports>
+	class XwtTextViewDisplayBinding : TextViewDisplayBinding<XwtTextViewImports>
 	{
-		static CocoaTextViewDisplayBinding ()
+		static XwtTextViewDisplayBinding ()
 		{
 			Microsoft.VisualStudio.UI.GettextCatalog.Initialize (GettextCatalog.GetString, GettextCatalog.GetString);
-			Microsoft.VisualStudio.Text.Editor.Implementation.CocoaLocalEventMonitor.FilterGdkEvents += (enable) => {
-				if (enable)
-					Gdk.Window.AddFilterForAll (Filter);
-				else
-					Gdk.Window.RemoveFilterForAll (Filter);
-			};
+			// TODO:
+			// Microsoft.VisualStudio.Text.Editor.Implementation.CocoaLocalEventMonitor.FilterGdkEvents += (enable) => {
+			// 	if (enable)
+			// 		Gdk.Window.AddFilterForAll (Filter);
+			// 	else
+			// 		Gdk.Window.RemoveFilterForAll (Filter);
+			// };
 		}
 
 		static FilterReturn Filter (IntPtr xevent, Event evnt)
@@ -54,17 +56,17 @@ namespace MonoDevelop.TextEditor
 			return FilterReturn.Remove;
 		}
 
-		protected override DocumentController CreateContent (CocoaTextViewImports imports)
+		protected override DocumentController CreateContent (XwtTextViewImports imports)
 		{
-			return new CocoaTextViewContent (imports);
+			return new XwtTextViewContent (imports);
 		}
 
 		protected override ThemeToClassification CreateThemeToClassification (IEditorFormatMapService editorFormatMapService)
-			=> new CocoaThemeToClassification (editorFormatMapService);
+			=> new XwtThemeToClassification (editorFormatMapService);
 
-		class CocoaThemeToClassification : ThemeToClassification
+		class XwtThemeToClassification : ThemeToClassification
 		{
-			public CocoaThemeToClassification (IEditorFormatMapService editorFormatMapService) : base (editorFormatMapService) {}
+			public XwtThemeToClassification (IEditorFormatMapService editorFormatMapService) : base (editorFormatMapService) {}
 
 			protected override void AddFontToDictionary (ResourceDictionary resourceDictionary, string appearanceCategory, string fontName, double fontSize)
 			{
@@ -72,62 +74,64 @@ namespace MonoDevelop.TextEditor
 					return;
 
 				if (fontSize <= 0)
-					fontSize = NSFont.SystemFontSize;
+					fontSize = Font.SystemFont.Size;
 
 				var pangoFontDescription = $"{fontName} {fontSize}";
 
-				NSFont nsFont;
+				Font xwtFont;
 
 				try {
-					nsFont = GetNSFontFromPangoFontDescription (pangoFontDescription);
+					xwtFont = GetXwtFontFromPangoFontDescription (pangoFontDescription);
 				} catch (Exception e) {
-					nsFont = null;
+					xwtFont = null;
 					LoggingService.LogInternalError (
 						$"Exception attempting to map Pango font description '{pangoFontDescription}' to an NSFont",
 						e);
 				}
 
-				if (nsFont == null) {
+				if (xwtFont == null) {
 					LoggingService.LogWarning (
 						$"Unable to map Pango font description '{pangoFontDescription}' " +
 						$"to NSFont; falling back to system default at {fontSize} pt");
-					nsFont = NSFontWorkarounds.UserFixedPitchFontOfSize ((nfloat)fontSize);
+					//TODO: xwtFont = NSFontWorkarounds.UserFixedPitchFontOfSize ((nfloat)fontSize);
 				}
 
-				fontSize = nsFont.PointSize;
+				fontSize = xwtFont.Size;
 
-				LoggingService.LogInfo ($"Mapped Pango font description '{pangoFontDescription}' to NSFont '{nsFont}'");
+				LoggingService.LogInfo ($"Mapped Pango font description '{pangoFontDescription}' to Font '{xwtFont}'");
 
-				resourceDictionary [ClassificationFormatDefinition.TypefaceId] = nsFont;
+				resourceDictionary [ClassificationFormatDefinition.TypefaceId] = xwtFont;
 				resourceDictionary [ClassificationFormatDefinition.FontRenderingSizeId] = fontSize;
 			}
 
-			static NSFont GetNSFontFromPangoFontDescription (string fontDescription)
-				=> GetNSFontFromPangoFontDescription (Pango.FontDescription.FromString (fontDescription));
+			static Font GetXwtFontFromPangoFontDescription (string fontDescription)
+				=> GetXwtFontFromPangoFontDescription (Pango.FontDescription.FromString (fontDescription));
 
-			static NSFont GetNSFontFromPangoFontDescription (Pango.FontDescription fontDescription)
+			static Font GetXwtFontFromPangoFontDescription (Pango.FontDescription fontDescription)
 			{
 				if (fontDescription == null)
 					return null;
 
-				return NSFontManager.SharedFontManager.FontWithFamilyWorkaround (
-					fontDescription.Family,
-					fontDescription.Style == Pango.Style.Italic || fontDescription.Style == Pango.Style.Oblique
-						? NSFontTraitMask.Italic
-						: 0,
-					NormalizeWeight (fontDescription.Weight),
-					fontDescription.Size / (nfloat)Pango.Scale.PangoScale);
+				return Font.FromName (fontDescription.Family)
+						.WithStyle (fontDescription.Style == Pango.Style.Italic || fontDescription.Style == Pango.Style.Oblique
+							? Xwt.Drawing.FontStyle.Italic
+							: 0)
+						.WithWeight (NormalizeWeight (fontDescription.Weight))
+						.WithSize (fontDescription.Size / (float)Pango.Scale.PangoScale);
+
 
 				/// <summary>
 				/// Normalizes a Pango font weight (100-1000 scale) to a weight
-				/// suitable for NSFontDescription.FontWithFamily (0-15 scale).
+				/// suitable for Font.FontWithFamily (0-15 scale).
 				/// </summary>
-				int NormalizeWeight (Pango.Weight pangoWeight)
+				Xwt.Drawing.FontWeight NormalizeWeight (Pango.Weight pangoWeight)
 				{
 					double Normalize (double value, double inMin, double inMax, double outMin, double outMax)
 						=> (outMax - outMin) / (inMax - inMin) * (value - inMax) + outMax;
 
-					return (int)Math.Round (Normalize ((int)pangoWeight, 100, 1000, 0, 15));
+					var w =  (int)Math.Round (Normalize ((int)pangoWeight, 100, 1000, 0, 15));
+					// TODO:
+					return (Xwt.Drawing.FontWeight) (w % 50);
 				}
 			}
 		}

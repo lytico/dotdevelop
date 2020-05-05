@@ -27,7 +27,7 @@ using Microsoft.VisualStudio.Core.Imaging;
 using MonoDevelop.Core;
 using MDImageService = MonoDevelop.Ide.ImageService;
 
-namespace MonoDevelop.TextEditor.Cocoa
+namespace MonoDevelop.TextEditor.XwtImpl
 {
 	// Import with AllowDefault:true
 	[Export (typeof (IImageService))]
@@ -83,12 +83,13 @@ namespace MonoDevelop.TextEditor.Cocoa
 
 			if (image != null) {
 				nativeImage = Xwt.Toolkit.NativeEngine.GetNativeImage (image);
-				if (nativeImage is AppKit.NSImage nsImage) {
-					if (stockId != null)
-						nsImage.Name = stockId;
-					if (imageDescription.Tags.HasFlag (ImageTags.Template))
-						nsImage.Template = true;
-				}
+
+				// if (nativeImage is AppKit.NSImage nsImage) {
+				// 	if (stockId != null)
+				// 		nsImage.Name = stockId;
+				// 	if (imageDescription.Tags.HasFlag (ImageTags.Template))
+				// 		nsImage.Template = true;
+				// }
 
 				descriptionToImageMap [imageDescription] = nativeImage;
 				return nativeImage;

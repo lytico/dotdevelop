@@ -26,10 +26,10 @@ using Microsoft.VisualStudio.Text.Editor.Expansion;
 namespace MonoDevelop.TextEditor
 {
 	[Export]
-	class CocoaTextViewImports : TextViewImports
+	class XwtTextViewImports : TextViewImports
 	{
 		[Import]
-		public ICocoaTextEditorFactoryService TextEditorFactoryService { get; set; }
+		public IXwtTextEditorFactoryService TextEditorFactoryService { get; set; }
 
 		[Import]
 		public IExpansionManager ExpansionManager { get; set; }

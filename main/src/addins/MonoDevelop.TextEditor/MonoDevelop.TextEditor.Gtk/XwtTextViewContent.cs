@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using AppKit;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Editor;
@@ -34,7 +33,8 @@ using MonoDevelop.DesignerSupport.Toolbox;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui.Documents;
-using ObjCRuntime;
+using Xwt;
+using Xwt.Backends;
 
 namespace MonoDevelop.TextEditor
 {
@@ -47,33 +47,33 @@ namespace MonoDevelop.TextEditor
 	{
 		public ClassificationFormatDefinitionFromPreferences ()
 		{
-			nfloat fontSize = -1;
+			float fontSize = -1;
 			var fontName = Ide.Editor.DefaultSourceEditorOptions.Instance.FontName;
 
 			if (!string.IsNullOrEmpty (fontName)) {
 				var sizeStartOffset = fontName.LastIndexOf (' ');
 				if (sizeStartOffset >= 0) {
-					nfloat.TryParse (fontName.Substring (sizeStartOffset + 1), out fontSize);
+					float.TryParse (fontName.Substring (sizeStartOffset + 1), out fontSize);
 					fontName = fontName.Substring (0, sizeStartOffset);
 				}
 			}
 
 			if (string.IsNullOrEmpty (fontName))
-				fontName = "Menlo";
+				fontName = Xwt.Drawing.Font.SystemMonospaceFont?.Family;
 
 			if (fontSize <= 1)
 				fontSize = 12;
 
-			FontTypeface = NSFontWorkarounds.FromFontName (fontName, fontSize);
+			FontTypeface = Xwt.Drawing.Font.FromName (fontName).WithSize (fontSize);
 		}
 	}
 
-	class CocoaTextViewContent :
-		TextViewContent<ICocoaTextView, CocoaTextViewImports>,
+	class XwtTextViewContent :
+		TextViewContent<IXwtTextView, XwtTextViewImports>,
 		IToolboxDynamicProvider
 	{
-		ICocoaTextViewHost textViewHost;
-		NSView textViewHostControl;
+		IXwtTextViewHost textViewHost;
+		Widget textViewHostControl;
 		GtkNSViewHostControl embeddedControl;
 
 		static readonly Lazy<bool> useLegacyGtkNSViewHost = new Lazy<bool> (
@@ -83,49 +83,51 @@ namespace MonoDevelop.TextEditor
 
 		abstract class GtkNSViewHostControl : Control
 		{
-			public Gtk.Widget GtkView { get; protected set; }
+			public global::Xwt.Widget XwtView { get; protected set; }
 		}
 
 		sealed class ManagedGtkNSViewHostControl : GtkNSViewHostControl
 		{
-			public ManagedGtkNSViewHostControl (ICocoaTextViewHost textViewHost)
+			public ManagedGtkNSViewHostControl (IXwtTextViewHost textViewHost)
 			{
 				if (textViewHost == null)
 					throw new ArgumentNullException (nameof (textViewHost));
 
-				GtkView = new Gtk.GtkNSViewHost (
-					textViewHost.HostControl,
-					disposeViewOnGtkDestroy: true);
+				//TODO:
+				// GtkView = new Gtk.GtkNSViewHost (
+				// 	textViewHost.HostControl,
+				// 	disposeViewOnGtkDestroy: true);
 
-				GtkView.Show ();
+				XwtView = new Xwt.HBox ();
+				XwtView.Show ();
 			}
 
 			protected override object CreateNativeWidget<T> ()
-				=> GtkView;
+				=> XwtView;
 
 			public override bool HasFocus
-				=> GtkView.HasFocus;
+				=> XwtView.HasFocus;
 
 			public override void GrabFocus ()
-				=> GtkView.GrabFocus ();
+				=> XwtView.SetFocus ();
 		}
 
 		sealed class LegacyGtkNSViewHostControl : GtkNSViewHostControl
 		{
-			readonly ICocoaTextViewHost textViewHost;
-			readonly NSView nsView;
+			readonly IXwtTextViewHost textViewHost;
+			readonly Xwt.Widget nsView;
 
 			bool nativeViewNeedsFocus;
 
 			public bool IsGrabbingFocus { get; private set; }
 
-			public LegacyGtkNSViewHostControl (ICocoaTextViewHost textViewHost)
+			public LegacyGtkNSViewHostControl (IXwtTextViewHost textViewHost)
 			{
 				this.textViewHost = textViewHost ?? throw new ArgumentNullException (nameof (textViewHost));
 				this.nsView = textViewHost.HostControl;
 
-				GtkView = this.GetNativeWidget<Gtk.Widget> ();
-				GtkView.CanFocus = true;
+				XwtView = this.GetNativeWidget<Xwt.Widget> ();
+				XwtView.CanGetFocus = true;
 
 				textViewHost.HostControlMovedToWindow += OnNativeViewMovedToWindow;
 			}
@@ -150,9 +152,9 @@ namespace MonoDevelop.TextEditor
 					return;
 
 				IsGrabbingFocus = true;
-				GtkView.GrabFocus ();
+				XwtView.SetFocus ();
 
-				if (nsView.Window != null)
+				if (nsView.ParentWindow != null)
 					FocusEditor ();
 				else
 					nativeViewNeedsFocus = true;
@@ -160,7 +162,7 @@ namespace MonoDevelop.TextEditor
 
 			private void OnNativeViewMovedToWindow (object sender, EventArgs e)
 			{
-				if (!nativeViewNeedsFocus || nsView.Window == null)
+				if (!nativeViewNeedsFocus || nsView.ParentWindow == null)
 					return;
 
 				FocusEditor ();
@@ -175,18 +177,18 @@ namespace MonoDevelop.TextEditor
 				textViewHost.TextView.Focus ();
 
 				// This is necessary to get focus back when using the navigation/breadcrumb bar
-				nsView.Window.MakeKeyAndOrderFront (nsView.Window);
+				// nsView.Window.MakeKeyAndOrderFront (nsView.Window);
 
 				IsGrabbingFocus = false;
 			}
 		}
 
-		public CocoaTextViewContent (CocoaTextViewImports imports)
+		public XwtTextViewContent (XwtTextViewImports imports)
 			: base (imports)
 		{
 		}
 
-		protected override ICocoaTextView CreateTextView (ITextViewModel viewModel, ITextViewRoleSet roles)
+		protected override IXwtTextView CreateTextView (ITextViewModel viewModel, ITextViewRoleSet roles)
 			=> Imports.TextEditorFactoryService.CreateTextView (viewModel, roles, Imports.EditorOptionsFactoryService.GlobalOptions);
 
 		protected override ITextViewRoleSet GetAllPredefinedRoles ()
@@ -196,24 +198,24 @@ namespace MonoDevelop.TextEditor
 		{
 			textViewHost = Imports.TextEditorFactoryService.CreateTextViewHost (TextView, setFocus: true);
 			textViewHostControl = textViewHost.HostControl;
-			textViewHostControl.AccessibilityTitle = GettextCatalog.GetString ("Source Editor Group");
+			textViewHostControl.Accessible.Title = GettextCatalog.GetString ("Source Editor Group");
 
 			if (!useLegacyGtkNSViewHost.Value) {
 				embeddedControl = new ManagedGtkNSViewHostControl (textViewHost);
 
 				TextView.GotAggregateFocus += (sender, e)
-					=> embeddedControl.GtkView.GrabFocus ();
+					=> embeddedControl.XwtView.SetFocus ();
 			} else {
 				var legacyEmbeddedControl = new LegacyGtkNSViewHostControl (textViewHost);
 				embeddedControl = legacyEmbeddedControl;
 
 				TextView.GotAggregateFocus += (sender, e) => {
 					if (!legacyEmbeddedControl.IsGrabbingFocus)
-						embeddedControl.GtkView.GrabFocus ();
+						embeddedControl.XwtView.SetFocus ();
 				};
 			}
 
-			TextView.Properties.AddProperty (typeof (Gtk.Widget), embeddedControl.GtkView);
+			TextView.Properties.AddProperty (typeof (Xwt.Widget), embeddedControl.XwtView);
 			TextBuffer.ContentTypeChanged += TextBuffer_ContentTypeChanged;
 			return embeddedControl;
 		}
@@ -244,34 +246,35 @@ namespace MonoDevelop.TextEditor
 		{
 			base.InstallAdditionalEditorOperationsCommands ();
 
-			EditorOperationCommands.Add (SearchCommands.Find, new EditorOperationCommand (
-				_ => HandleTextFinderAction (
-					TextFinderAction.ShowFindInterface,
-					perform: true),
-				(_, info) => info.Enabled = HandleTextFinderAction (
-					TextFinderAction.ShowFindInterface,
-					perform: false)));
-
-			EditorOperationCommands.Add (SearchCommands.Replace, new EditorOperationCommand (
-				_ => HandleTextFinderAction (
-					TextFinderAction.ShowReplaceInterface,
-					perform: true),
-				(_, info) => info.Enabled = HandleTextFinderAction (
-					TextFinderAction.ShowReplaceInterface,
-					perform: false)));
-
-			bool HandleTextFinderAction (TextFinderAction action, bool perform)
-			{
-				var responder = textViewHostControl?.Window?.FirstResponder;
-
-				if (responder != null && responder.RespondsToSelector (action.Action)) {
-					if (perform)
-						responder.PerformTextFinderAction (action);
-					return true;
-				}
-
-				return false;
-			}
+			// TODO:
+			// EditorOperationCommands.Add (SearchCommands.Find, new EditorOperationCommand (
+			// 	_ => HandleTextFinderAction (
+			// 		TextFinderAction.ShowFindInterface,
+			// 		perform: true),
+			// 	(_, info) => info.Enabled = HandleTextFinderAction (
+			// 		TextFinderAction.ShowFindInterface,
+			// 		perform: false)));
+			//
+			// EditorOperationCommands.Add (SearchCommands.Replace, new EditorOperationCommand (
+			// 	_ => HandleTextFinderAction (
+			// 		TextFinderAction.ShowReplaceInterface,
+			// 		perform: true),
+			// 	(_, info) => info.Enabled = HandleTextFinderAction (
+			// 		TextFinderAction.ShowReplaceInterface,
+			// 		perform: false)));
+			//
+			// bool HandleTextFinderAction (TextFinderAction action, bool perform)
+			// {
+			// 	var responder = textViewHostControl?.ParentWindow?.FirstResponder();
+			//
+			// 	if (responder != null && responder.RespondsToSelector (action.Action)) {
+			// 		if (perform)
+			// 			responder.PerformTextFinderAction (action);
+			// 		return true;
+			// 	}
+			//
+			// 	return false;
+			// }
 		}
 
 		static string category = GettextCatalog.GetString ("Text Snippets");
@@ -288,23 +291,23 @@ namespace MonoDevelop.TextEditor
 			}
 		}
 
-		sealed class TextFinderAction : Foundation.NSObject, INSValidatedUserInterfaceItem
-		{
-			public static readonly TextFinderAction ShowFindInterface
-				= new TextFinderAction (NSTextFinderAction.ShowFindInterface);
-
-			public static readonly TextFinderAction ShowReplaceInterface
-				= new TextFinderAction (NSTextFinderAction.ShowReplaceInterface);
-
-			public Selector Action { get; } = new Selector ("performTextFinderAction:");
-			public nint Tag { get; }
-
-			TextFinderAction (IntPtr handle) : base (handle)
-			{
-			}
-
-			TextFinderAction (NSTextFinderAction action)
-				=> Tag = (int)action;
-		}
+		// sealed class TextFinderAction : Foundation.NSObject, INSValidatedUserInterfaceItem
+		// {
+		// 	public static readonly TextFinderAction ShowFindInterface
+		// 		= new TextFinderAction (NSTextFinderAction.ShowFindInterface);
+		//
+		// 	public static readonly TextFinderAction ShowReplaceInterface
+		// 		= new TextFinderAction (NSTextFinderAction.ShowReplaceInterface);
+		//
+		// 	public Selector Action { get; } = new Selector ("performTextFinderAction:");
+		// 	public nint Tag { get; }
+		//
+		// 	TextFinderAction (IntPtr handle) : base (handle)
+		// 	{
+		// 	}
+		//
+		// 	TextFinderAction (NSTextFinderAction action)
+		// 		=> Tag = (int)action;
+		// }
 	}
 }

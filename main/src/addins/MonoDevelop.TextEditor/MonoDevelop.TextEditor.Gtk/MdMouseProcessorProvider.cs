@@ -27,8 +27,6 @@
 using System;
 using System.ComponentModel.Composition;
 
-using AppKit;
-
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.Commanding;
 using Microsoft.VisualStudio.Utilities;
@@ -36,35 +34,36 @@ using Microsoft.VisualStudio.Utilities;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Documents;
+using Xwt;
 
-namespace MonoDevelop.TextEditor.Cocoa
+namespace MonoDevelop.TextEditor.XwtImpl
 {
-	[Export (typeof (ICocoaMouseProcessorProvider))]
+	[Export (typeof (IXwtMouseProcessorProvider))]
 	[Name ("VisualStudioMouseProcessor")]
 	[Order (Before = "WordSelection")]
 	[ContentType ("Text")]
 	[TextViewRole ("INTERACTIVE")]
-	sealed class MdMouseProcessorProvider : ICocoaMouseProcessorProvider
+	sealed class MdMouseProcessorProvider : IXwtMouseProcessorProvider
 	{
 		[Import]
 		public IEditorCommandHandlerServiceFactory CommandServiceFactory { get; private set; }
 
-		public ICocoaMouseProcessor GetAssociatedProcessor (ICocoaTextView cocoaTextView)
+		public IXwtMouseProcessor GetAssociatedProcessor (IXwtTextView cocoaTextView)
 			=> new MdMouseProcessor (
 				CommandServiceFactory.GetService (cocoaTextView),
 				cocoaTextView);
 	}
 
-	sealed class MdMouseProcessor : CocoaMouseProcessorBase
+	sealed class MdMouseProcessor : XwtMouseProcessorBase
 	{
 		const string menuPath = "/MonoDevelop/TextEditor/ContextMenu/Editor";
 
 		readonly IEditorCommandHandlerService commandServiceFactory;
-		readonly ICocoaTextView textView;
+		readonly IXwtTextView textView;
 
 		public MdMouseProcessor (
 			IEditorCommandHandlerService commandServiceFactory,
-			ICocoaTextView textView)
+			IXwtTextView textView)
 		{
 			this.commandServiceFactory = commandServiceFactory
 				?? throw new ArgumentNullException (nameof (commandServiceFactory));
@@ -73,16 +72,16 @@ namespace MonoDevelop.TextEditor.Cocoa
 				?? throw new ArgumentNullException (nameof (textView));
 		}
 
-		public override void PreprocessMouseRightButtonDown (MouseEventArgs e)
-			=> textView.MoveCaretToPosition (e.Event);
+		public override void PreprocessMouseRightButtonDown (ButtonEventArgs e)
+			=> textView.MoveCaretToPosition (e);
 
-		public override void PreprocessMouseRightButtonUp (MouseEventArgs e)
+		public override void PreprocessMouseRightButtonUp (ButtonEventArgs e)
 		{
 			var controller = (DocumentController)textView.Properties [typeof (DocumentController)];
 			var extensionContext = controller.ExtensionContext;
 			var commandEntrySet = IdeApp.CommandService.CreateCommandEntrySet (extensionContext, menuPath);
 
-			var menuPosition = textView.GetViewRelativeMousePosition (e.Event);
+			var menuPosition = textView.GetViewRelativeMousePosition (e.Position);
 
 			IdeApp.CommandService.ShowContextMenu (
 				textView.VisualElement,
@@ -92,4 +91,5 @@ namespace MonoDevelop.TextEditor.Cocoa
 				controller);
 		}
 	}
+
 }

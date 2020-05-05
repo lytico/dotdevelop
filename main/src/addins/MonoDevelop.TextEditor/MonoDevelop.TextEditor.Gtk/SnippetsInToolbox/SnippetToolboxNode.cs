@@ -63,7 +63,7 @@ namespace MonoDevelop.TextEditor
 			} finally {
 				textView.Properties.RemoveProperty (typeof (ExpansionTemplate));
 			}
-			((ICocoaTextView) textView).VisualElement.Window?.MakeKeyWindow ();
+			// TODO: ((ICocoaTextView) textView).VisualElement.Window?.MakeKeyWindow ();
 		}
 
 		public SnippetToolboxNode (ExpansionTemplate template)

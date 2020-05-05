@@ -480,6 +480,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.DesignerSupport
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextUIGtkUtil", "external\vs-editor-api\src\Editor\Text\Util\TextUIGtkUtil\TextUIGtkUtil.csproj", "{209B27AE-712E-4B87-8846-BB149874D44E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.TextEditor.Cocoa", "src\addins\MonoDevelop.TextEditor\MonoDevelop.TextEditor.Cocoa\MonoDevelop.TextEditor.Cocoa.csproj", "{4F6444E2-8D4F-44C8-96CC-498F97F75B4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDevelop.TextEditor.Gtk", "src\addins\MonoDevelop.TextEditor\MonoDevelop.TextEditor.Gtk\MonoDevelop.TextEditor.Gtk.csproj", "{9F6DC11A-BEE9-47E4-AA46-017561F651F6}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\core\Mono.TextEditor.Shared\Mono.TextEditor.Shared.projitems*{f8f92aa4-a376-4679-a9d4-60e7b7fbf477}*SharedItemsImports = 4
@@ -2819,6 +2823,26 @@ Global
 		{2C24D515-4A2C-445C-8419-C09231913CFA}.Release|x86.Build.0 = Release|Any CPU
 		{2C24D515-4A2C-445C-8419-C09231913CFA}.DebugGnome|Any CPU.ActiveCfg = DebugGnome|Any CPU
 		{2C24D515-4A2C-445C-8419-C09231913CFA}.DebugGnome|Any CPU.Build.0 = DebugGnome|Any CPU
+		{4F6444E2-8D4F-44C8-96CC-498F97F75B4A}.DebugMac|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F6444E2-8D4F-44C8-96CC-498F97F75B4A}.DebugMac|Any CPU.Build.0 = Debug|Any CPU
+		{4F6444E2-8D4F-44C8-96CC-498F97F75B4A}.ReleaseMac|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F6444E2-8D4F-44C8-96CC-498F97F75B4A}.ReleaseMac|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.DebugGnome|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.DebugGnome|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.DebugWin32|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.DebugWin32|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.ReleaseGnome|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.ReleaseGnome|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.ReleaseWin32|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.ReleaseWin32|Any CPU.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Debug|x86.Build.0 = Debug|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Release|x86.ActiveCfg = Release|Any CPU
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3039,6 +3063,8 @@ Global
 		{9DAA25E7-9C9D-4C34-A72A-E402D29BE6F6} = {AA56E3AE-8E61-4101-B01A-2646DC1B0D7B}
 		{2C24D515-4A2C-445C-8419-C09231913CFA} = {56499B8C-4935-4D00-9192-4F2033142975}
 		{209B27AE-712E-4B87-8846-BB149874D44E} = {745BF6CA-BC7C-4863-B1B4-C423A828820A}
+		{4F6444E2-8D4F-44C8-96CC-498F97F75B4A} = {C14B06AC-905A-47AB-BAD9-652E3499CFE0}
+		{9F6DC11A-BEE9-47E4-AA46-017561F651F6} = {C14B06AC-905A-47AB-BAD9-652E3499CFE0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {856CF524-E2A7-4DB0-B80F-8F1B080A2E25}

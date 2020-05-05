@@ -32,27 +32,27 @@
 	</Runtime>
 	<Extension path="/MonoDevelop/Ide/Composition">
 		<!-- these are coming from vs-editor-core (Cocoa implementations) -->
-		<Assembly file="Microsoft.CodeAnalysis.EditorFeatures.Gtk.dll" />
-		<Assembly file="Microsoft.VisualStudio.Language.StandardClassification.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Logic.Text.Navigation.NavigationProviders.dll" />
-		<Assembly file="Microsoft.VisualStudio.Logic.Text.UrlTagger.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.Find.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.Formatting.RtfBuilderService.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.IndentationManager.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.Structure.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.AdornmentLibrary.ToolTip.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.AdornmentLibrary.VisibleWhitespace.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.Cocoa.View.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.CurrentLineHighlighter.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.TextAndAdornmentSequencer.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.Wpf.Classification.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.Wpf.GlyphMargin.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.UI.Text.Cocoa.DragDrop.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Logic.Text.ChangeTagger.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Logic.Text.TaskTagger.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.DifferenceBuffer.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.Text.DifferenceViewer.Implementation.dll" />
-		<Assembly file="MonoDevelop.TextEditor.Cocoa.dll" />
+<!--		<Assembly file="Microsoft.CodeAnalysis.EditorFeatures.Gtk.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Language.StandardClassification.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Logic.Text.Navigation.NavigationProviders.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Logic.Text.UrlTagger.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.Find.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.Formatting.RtfBuilderService.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.IndentationManager.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.Structure.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.AdornmentLibrary.ToolTip.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.AdornmentLibrary.VisibleWhitespace.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.Cocoa.View.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.CurrentLineHighlighter.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.TextAndAdornmentSequencer.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.Wpf.Classification.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.Wpf.GlyphMargin.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.UI.Text.Cocoa.DragDrop.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Logic.Text.ChangeTagger.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Logic.Text.TaskTagger.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.DifferenceBuffer.Implementation.dll" />-->
+<!--		<Assembly file="Microsoft.VisualStudio.Text.DifferenceViewer.Implementation.dll" />-->
+		<Assembly file="MonoDevelop.TextEditor.Gtk.dll" />
 		<!-- These are coming from vs-editor-api (no Cocoa dependency) -->
 		<Assembly file="../../../bin/Microsoft.VisualStudio.CoreUtilityImplementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.Language.Implementation.dll" />
@@ -81,7 +81,7 @@
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.Commanding.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.EditorOperations.Implementation.dll" />
 		<Assembly file="../../../bin/Microsoft.VisualStudio.UI.Text.EditorPrimitives.Implementation.dll" />
-		<Assembly file="Microsoft.VisualStudio.TextMate.Core.dll" />
+<!--		<Assembly file="Microsoft.VisualStudio.TextMate.Core.dll" />-->
 	</Extension>
 	<Extension path="/MonoDevelop/Core/StockIcons">
 		<StockIcon stockid="vs-find-replace-search" resource="vs-find-replace-search-16.png" size="Menu" imageid="{6114fe54-2a4a-4354-aabb-d2b8fad160a5}#1" />

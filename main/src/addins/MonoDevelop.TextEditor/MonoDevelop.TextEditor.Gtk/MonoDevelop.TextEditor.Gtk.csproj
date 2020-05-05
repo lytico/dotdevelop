@@ -71,7 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-<!--    <IncludeCopyLocal Include="Microsoft.CodeAnalysis.EditorFeatures.Cocoa.dll" />-->
+    <!--    <IncludeCopyLocal Include="Microsoft.CodeAnalysis.EditorFeatures.Cocoa.dll" />-->
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.Language.NavigateTo.Interfaces.dll" />-->
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.Logic.Text.Navigation.NavigationProviders.dll" />-->
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.Text.Find.Implementation.dll" />-->
@@ -93,6 +93,8 @@
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.Text.DifferenceBuffer.Implementation.dll" />-->
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.Text.DifferenceViewer.Implementation.dll" />-->
 <!--    <IncludeCopyLocal Include="Microsoft.VisualStudio.TextMate.Core.dll" />-->
+  
+    <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="**\*.png" />
@@ -160,6 +162,7 @@
     <EmbeddedResource Include="icons\vs-go-to-line-16%402x.png" />
     <EmbeddedResource Include="icons\vs-go-to-line-16~dark%402x.png" />
     <EmbeddedResource Include="icons\vs-go-to-line-16~dark.png" />
+      
   </ItemGroup>
 <!--  <Target Name="BuildTextMate" BeforeTargets="Compile">-->
 <!--    <MSBuild Projects="$(VSEditorCoreDirectory)src\Editor\TextMate\TMRegEx\TMRegEx.proj" Targets="Build" Properties="Configuration=$(Configuration)" />-->

@@ -4,10 +4,18 @@
 		<MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<!-- target framework for the core and addins -->
-		<MDFrameworkVersion>v4.7.1</MDFrameworkVersion>
-	</PropertyGroup>
+  <PropertyGroup>
+    <_IsSdkStyleProject>false</_IsSdkStyleProject>
+    <_IsSdkStyleProject Condition="'$(Configurations)' != '' and '$(Platforms)' != ''">true</_IsSdkStyleProject>
+    <!-- target framework for the core and addins -->
+    <MDFrameworkVersion>v4.8</MDFrameworkVersion>
+    <MDTargetFramework>net48</MDTargetFramework>
+    <!--
+    for sdk-style projects we can set the value directly.
+    old-style projects need to set it themselves or some IDE stuff breaks.
+    -->
+    <TargetFramework Condition="'$(_IsSdkStyleProject)'=='true'">$(MDTargetFramework)</TargetFramework>
+  </PropertyGroup>
 
 	<!--
 	Sign assemblies so they get IVT access to Roslyn.

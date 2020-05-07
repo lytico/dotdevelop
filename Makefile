@@ -1,8 +1,8 @@
 include main/monodevelop_version
 
 EXTRA_DIST = configure code_of_conduct.md
-SPACE := 
-SPACE +=  
+SPACE :=
+SPACE +=
 
 ifeq ($(origin APP), undefined)
 BIN_DIR=main/build
@@ -22,7 +22,9 @@ MONO_AOT:=MONO_PATH="$(AOT_DIRECTORIES):$(MSBUILD_PATH):$(MONO_PATH)" $(AOT_COMM
 MSBUILD_LIBRARIES=Microsoft.Build.dll Microsoft.Build.Framework.dll Microsoft.Build.Utilities.Core.dll
 MSBUILD_DLLS=$(patsubst %, $(MSBUILD_PATH)/%, $(MSBUILD_LIBRARIES))
 
-all: update_submodules all-recursive
+# Set $PATH to point to provisioned .NET Core and avoid the ones provisioned by VSTS itself
+all: export PATH:="/usr/local/share/dotnet:$(PATH)"
+all: print_config update_submodules all-recursive
 
 GIT_FOUND = $$(echo $$(which git))
 SYNC_SUBMODULES = \
@@ -35,6 +37,11 @@ SYNC_SUBMODULES = \
 		git submodule update --init --recursive || exit 1; \
 	fi
 
+print_config:
+	@echo "PATH is $(PATH)"
+	@echo ".NET Core `dotnet --version` installed in `which dotnet`"
+	@dotnet --list-sdks
+
 update_submodules:
 	@$(SYNC_SUBMODULES)
 
@@ -46,13 +53,14 @@ CONFIG_MAKE=$(top_srcdir)/config.make
 %-recursive: $(CONFIG_MAKE)
 	@export PKG_CONFIG_PATH="`pwd`/$(top_srcdir)/local-config:$(prefix)/lib/pkgconfig:$(prefix)/share/pkgconfig:$$PKG_CONFIG_PATH"; \
 	export MONO_GAC_PREFIX="$(prefix):$$MONO_GAC_PREFIX"; \
+	export PATH="$$PATH:/Library/Frameworks/Mono.framework/Versions/Current/bin"; \
 	set . $$MAKEFLAGS; final_exit=:; \
 	case $$2 in --unix) shift ;; esac; \
 	case $$2 in *=*) dk="exit 1" ;; *k*) dk=: ;; *) dk="exit 1" ;; esac; \
 	for dir in $(SUBDIRS); do \
 		case $$dir in \
-		.) PATH="$(PATH):/Library/Frameworks/Mono.framework/Versions/Current/bin" $(MAKE) $*-local || { final_exit="exit 1"; $$dk; };;\
-		*) (cd $$dir && PATH="$(PATH):/Library/Frameworks/Mono.framework/Versions/Current/bin" $(MAKE) $*) || { final_exit="exit 1"; $$dk; };;\
+		.) $(MAKE) $*-local || { final_exit="exit 1"; $$dk; };;\
+		*) (cd $$dir && $(MAKE) $*) || { final_exit="exit 1"; $$dk; };;\
 		esac \
 	done
 	$$final_exit
@@ -102,7 +110,7 @@ dist: update_submodules remove-stale-tarballs remove-stale-buildinfo dist-recurs
 		echo Decompressing $$tb; \
 		tar xvjf external/$$tb; \
 	done
-	@rm -rf tarballs/external	
+	@rm -rf tarballs/external
 	@echo Decompressing monodevelop-$(PACKAGE_VERSION).tar.bz2
 	@cd tarballs && tar xvjf monodevelop-$(PACKAGE_VERSION).tar.bz2
 	@cp version.config tarballs/monodevelop-$(PACKAGE_VERSION)
@@ -157,7 +165,7 @@ run-no-accessibility:
 	cd main && $(MAKE) run-no-accessibility
 test:
 	cd main && $(MAKE) test assembly=$(assembly)
-    
+
 deploy-tests:
 	cd main && $(MAKE) deploy-tests
 

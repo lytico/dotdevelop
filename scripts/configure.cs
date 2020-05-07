@@ -344,7 +344,7 @@ namespace MonoDevelop.Configuration
             p.BeginErrorReadLine();
             p.WaitForExit();
             if (p.ExitCode != 0)
-                throw new UserException(file + " failed");
+	            throw new UserException (string.Format(file + " {0} failed [workingDir: {1}]", args, workingDir));
             return sb.ToString();
         }
     }

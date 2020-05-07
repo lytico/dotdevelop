@@ -278,3 +278,9 @@ main/po/StripMnemonics.pdb
 main/po/StripMnemonics.exe
 *.binlog
 *.ProjectImports.zip
+
+#rider
+*.idea
+main/.idea/
+
+

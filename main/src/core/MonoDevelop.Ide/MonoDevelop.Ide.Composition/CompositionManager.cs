@@ -34,7 +34,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.CodeAnalysis.Host;
-using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.VisualStudio.Composition;
 using Mono.Addins;
 using MonoDevelop.Core;

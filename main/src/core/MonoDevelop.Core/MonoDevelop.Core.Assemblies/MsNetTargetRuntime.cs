@@ -1,21 +1,21 @@
-﻿// 
+﻿//
 // MsNetTargetRuntime.cs
-//  
+//
 // Author:
 //       Lluis Sanchez Gual <lluis@novell.com>
-// 
+//
 // Copyright (c) 2009 Novell, Inc (http://www.novell.com)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Build.MSBuildLocator;
+using Microsoft.Build.Locator;
 using Microsoft.Win32;
 using MonoDevelop.Core.Execution;
 
@@ -49,21 +49,21 @@ namespace MonoDevelop.Core.Assemblies
 			return Environment.GetFolderPath (IntPtr.Size == 8?
 				Environment.SpecialFolder.ProgramFilesX86 : Environment.SpecialFolder.ProgramFiles);
 		}
-		
+
 		public MsNetTargetRuntime (bool running)
 		{
 			winDir = Path.GetFullPath (Environment.SystemDirectory + "\\..");
 			rootDir = winDir + "\\Microsoft.NET\\Framework";
-			
+
 			string programFilesX86 = GetProgramFilesX86 ();
 			newFxDir = programFilesX86 + "\\Reference Assemblies\\Microsoft\\Framework";
 			msbuildDir = GetMSBuildBinPath ("15.0"); // C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\bin
 			msbuildDir = Path.GetDirectoryName (Path.GetDirectoryName (msbuildDir)); // C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild
-			
+
 			this.running = running;
 			execHandler = new MsNetExecutionHandler ();
 		}
-		
+
 		public override string DisplayRuntimeName {
 			get {
 				return "Microsoft .NET";
@@ -75,17 +75,17 @@ namespace MonoDevelop.Core.Assemblies
 				return "MS.NET";
 			}
 		}
-		
+
 		public override string Version {
 			get {
 				return "";
 			}
 		}
-		
+
 		public FilePath RootDirectory {
 			get { return rootDir; }
 		}
-		
+
 		public override IEnumerable<FilePath> GetReferenceFrameworkDirectories ()
 		{
 			yield return newFxDir;
@@ -96,7 +96,7 @@ namespace MonoDevelop.Core.Assemblies
 		{
 			return Path.ChangeExtension (assemblyPath, ".pdb");
 		}
-		
+
 		protected override void OnInitialize ()
 		{
 			RegistryKey foldersKey = Registry.LocalMachine.OpenSubKey (@"SOFTWARE\Microsoft\.NETFramework\AssemblyFolders", false);
@@ -140,7 +140,7 @@ namespace MonoDevelop.Core.Assemblies
 				}
 			}
 		}
-		
+
 		static string GetClrVersion (TargetFrameworkMoniker id)
 		{
 			if (id.Identifier != TargetFrameworkMoniker.ID_NET_FRAMEWORK) {
@@ -169,7 +169,7 @@ namespace MonoDevelop.Core.Assemblies
 				fk.Close ();
 			}
 		}
-		
+
 		public override string GetMSBuildBinPath (string toolsVersion)
 		{
 			var instances = MSBuildLocator.QueryVisualStudioInstances (new VisualStudioInstanceQueryOptions ())
@@ -192,12 +192,12 @@ namespace MonoDevelop.Core.Assemblies
 		{
 			return GetMSBuildBinPath (toolsVersion);
 		}
-		
+
 		public override string GetMSBuildExtensionsPath ()
 		{
 			return msbuildDir;
 		}
-		
+
 		void AddPackage (string name, string version, string folder, TargetFramework fx)
 		{
 			SystemPackageInfo pinfo = new SystemPackageInfo ();
@@ -231,7 +231,7 @@ namespace MonoDevelop.Core.Assemblies
 				yield return gacDir + "_64";
 			if (Directory.Exists (gacDir + "_MSIL"))
 				yield return gacDir + "_MSIL";
-			
+
 			gacDir = winDir + "\\Microsoft.NET\\assembly\\GAC";
 			if (Directory.Exists (gacDir))
 				yield return gacDir;
@@ -247,7 +247,7 @@ namespace MonoDevelop.Core.Assemblies
 		{
 			return execHandler;
 		}
-		
+
 		protected override TargetFrameworkBackend CreateBackend (TargetFramework fx)
 		{
 			return new MsNetFrameworkBackend ();

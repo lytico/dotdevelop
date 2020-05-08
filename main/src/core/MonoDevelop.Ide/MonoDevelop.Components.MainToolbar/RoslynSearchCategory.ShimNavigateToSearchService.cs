@@ -46,10 +46,13 @@ namespace MonoDevelop.Components.MainToolbar
 
 		public bool CanFilter => false;
 
+
+
 		public Task<ImmutableArray<INavigateToSearchResult>> SearchDocumentAsync (Document document, string searchPattern, IImmutableSet<string> kinds, CancellationToken cancellationToken)
 			=> _navigateToSearchService.SearchDocumentAsync (document, searchPattern, cancellationToken);
 
-		public Task<ImmutableArray<INavigateToSearchResult>> SearchProjectAsync (Project project, string searchPattern, IImmutableSet<string> kinds, CancellationToken cancellationToken)
+		public Task<ImmutableArray<INavigateToSearchResult>> SearchProjectAsync (Project project, ImmutableArray<Document> priorityDocuments, string searchPattern, IImmutableSet<string> kinds,CancellationToken cancellationToken)
 			=> _navigateToSearchService.SearchProjectAsync (project, searchPattern, cancellationToken);
+
 	}
 }

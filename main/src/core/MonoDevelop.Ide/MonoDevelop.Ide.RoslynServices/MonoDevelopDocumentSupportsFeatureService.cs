@@ -28,7 +28,7 @@ using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editor.Shared;
 using Microsoft.CodeAnalysis.Host.Mef;
-
+using Microsoft.CodeAnalysis.Shared;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.TypeSystem;
 

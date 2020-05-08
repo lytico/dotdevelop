@@ -39,7 +39,7 @@ namespace MonoDevelop.Ide.TypeSystem
 	[Export (typeof (IDocumentOptionsProviderFactory))]
 	class TextPolicyDocumentOptionsProviderFactory : IDocumentOptionsProviderFactory
 	{
-		public IDocumentOptionsProvider Create (Workspace workspace)
+		public IDocumentOptionsProvider TryCreate (Workspace workspace)
 		{
 			return new TextPolicyDocumentOptionsProvider ();
 		}
@@ -68,7 +68,7 @@ namespace MonoDevelop.Ide.TypeSystem
 				this.policy = policy;
 			}
 
-			public bool TryGetDocumentOption (OptionKey option, OptionSet underlyingOptions, out object value)
+			public bool TryGetDocumentOption (OptionKey option, out object value)
 			{
 				if (option.Option == FormattingOptions.UseTabs) {
 					value = !policy.TabsToSpaces;

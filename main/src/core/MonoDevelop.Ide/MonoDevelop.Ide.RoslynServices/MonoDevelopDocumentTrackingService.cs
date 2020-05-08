@@ -91,7 +91,7 @@ namespace MonoDevelop.Ide.RoslynServices
 		/// workspace.
 		/// </summary>
 		/// <returns>The ID of the active document (if any)</returns>
-		public DocumentId GetActiveDocument ()
+		public DocumentId TryGetActiveDocument ()
 		{
 			return IdeApp.Workbench?.ActiveDocument?.AnalysisDocument?.Id;
 		}

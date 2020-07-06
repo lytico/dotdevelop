@@ -1,7 +1,7 @@
 
 using Mono.Addins;
 
-[assembly:Addin ("AspNet", 
+[assembly:Addin ("AspNet",
                  Namespace = "MonoDevelop",
                  Version = MonoDevelop.BuildInfo.Version,
                  Category = "Web Development")]
@@ -15,4 +15,4 @@ using Mono.Addins;
 [assembly:AddinDependency ("Xml", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("SourceEditor2", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("TextTemplating", MonoDevelop.BuildInfo.Version)]
-[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]
+//[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]

@@ -1,7 +1,7 @@
 ﻿namespace MonoDevelop.FSharp
 open Mono.Addins
 
-[<Addin ("FSharpBinding", 
+[<Addin ("FSharpBinding",
   Namespace = "MonoDevelop",
   Version = MonoDevelop.BuildInfo.Version,
   Url = "http://github.com/fsharp/xamarin-monodevelop-fsharp-addin/",
@@ -16,5 +16,5 @@ open Mono.Addins
 [<AddinDependency ("SourceEditor2", MonoDevelop.BuildInfo.Version)>]
 [<AddinDependency ("Refactoring", MonoDevelop.BuildInfo.Version)>]
 [<AddinDependency ("UnitTesting", MonoDevelop.BuildInfo.Version)>]
-[<AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)>]
+//[<AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)>]
 ()

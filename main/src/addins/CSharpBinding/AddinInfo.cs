@@ -3,7 +3,7 @@ using System;
 using Mono.Addins;
 using Mono.Addins.Description;
 
-[assembly:Addin ("CSharpBinding", 
+[assembly:Addin ("CSharpBinding",
                  Namespace = "MonoDevelop",
                  Version = MonoDevelop.BuildInfo.Version,
                  Category = "Language bindings")]
@@ -16,7 +16,7 @@ using Mono.Addins.Description;
 [assembly:AddinDependency ("Refactoring", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("SourceEditor2", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("UnitTesting", MonoDevelop.BuildInfo.Version)]
-[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]
+//[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]
 
 // Submodules
 [assembly:AddinModule ("MonoDevelop.CSharpBinding.Autotools.dll")]

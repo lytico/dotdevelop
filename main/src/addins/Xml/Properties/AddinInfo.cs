@@ -1,6 +1,6 @@
 using Mono.Addins;
 
-[assembly:Addin ("Xml", 
+[assembly:Addin ("Xml",
 	Namespace = "MonoDevelop",
 	Version = MonoDevelop.BuildInfo.Version,
 	Category = "IDE extensions")]
@@ -12,4 +12,4 @@ using Mono.Addins;
 [assembly:AddinDependency ("Ide", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("DesignerSupport", MonoDevelop.BuildInfo.Version)]
 [assembly:AddinDependency ("SourceEditor2", MonoDevelop.BuildInfo.Version)]
-[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]
+//[assembly:AddinDependency ("TextEditor", MonoDevelop.BuildInfo.Version)]
